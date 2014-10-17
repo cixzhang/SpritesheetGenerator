@@ -1,0 +1,31 @@
+div.toolbar {
+  height: 100%;
+  width: @width-toolbar;
+  position: absolute;
+  top: 0; left: 0;
+  z-index: 10;
+  background-color: white;
+  div.panels {
+    position: absolute;
+    bottom: 0;
+  }
+  button {
+    display: block;
+    width: @width-toolbar - @offset;
+    height: @width-toolbar - @offset;
+    border-radius: @border-radius;
+    margin: @offset / 2;
+    text-align: center;
+    padding: 0;
+    background: transparent;
+    border: none; outline: none;
+    cursor: pointer;
+    &:hover {
+      background-color: rgba(94, 167, 179, 0.1);
+    }
+    &.active {
+      background-color: rgba(94, 167, 179, 0.35);
+      box-shadow: inset 0 0 @offset @color-shadow;
+    }
+  }
+}

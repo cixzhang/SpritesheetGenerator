@@ -1,0 +1,101 @@
+div.sidebar > div.panels {
+  width: @width-panel;
+  max-width: @width-panel;
+  height: 100%;
+  background-color: #eff6f8;
+  overflow: hidden;
+  transition: max-width 0.4s ease;
+  position: relative;
+  border-left: @border @color-shadow;
+  &.hidden { max-width: 0; }
+  & > div {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%; width: 100%;
+    transition: opactiy 0.4s ease;
+    &.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+  header {
+    height: @height-row;
+    width: 100%;
+    line-height: @height-row;
+    padding: 0 @offset;
+    font-weight: @fontWeight-normal;
+    font-size: @fontSize-medium;
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  header + * {
+    padding: @offset;
+  }
+}
+
+div.frames {
+  ul {
+    height: calc(100% ~"-" @height-row);
+    overflow: auto;
+  }
+  li {
+    display: block;
+    padding: @offset;
+    border: @border @color-border-light;
+    border-radius: @border-radius;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-bottom: @offset;
+    position: relative;
+    &:last-of-type { margin-bottom: 0; }
+    &.selected { background-color: rgba(255, 255, 255, 0.8); }
+    div {
+      display: inline-block;
+      width: 30%;
+      height: 30%;
+    }
+    input {
+      padding: @offset;
+      border: @border @color-border;
+      border-radius: @border-radius;
+      margin-left: @offset;
+    }
+    canvas, input {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    i.icon-close {
+      position: absolute;
+      top: @offset / 2; right: @offset / 2;
+      color: #333;
+      opacity: 0.1;
+      cursor: pointer;
+      &:hover { opacity: 0.8; }
+    }
+  }
+}
+
+div.files {
+  & > div:first-child { height: @height-row * 4; }
+  & > div:last-child { height: calc(100% ~"-" @height-row * 4); }
+
+  div.upload {
+    li {
+      display: block;
+      height: @height-row;
+      padding: 0 @offset;
+      line-height: @height-row;
+    }
+  }
+
+  div.output {
+    div {
+      height: calc(100% ~"-" @height-row);
+    }
+    textarea {
+      padding: @offset;
+      height: 100%; width: 100%;
+      border: @border @color-border;
+      border-radius: @border-radius;
+      resize: none;
+    }
+  }
+}
