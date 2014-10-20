@@ -17,6 +17,6 @@ If you need a version running locally or your own customized spritesheet format,
 
 3. Run the server:
 
-      grunt spritesheet
+        grunt spritesheet
 
 You can visit your local application at `http://localhost:8000/`
