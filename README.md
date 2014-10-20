@@ -8,19 +8,15 @@ Simply drag and drop your sprites image file into the application and use the to
 
 If you need a version running locally or your own customized spritesheet format, you can fork this repo and run the following installation steps:
 
-  The local server uses [node.js](http://nodejs.org/). Follow the installation guide for your operating system.
+1. The local server uses [node.js](http://nodejs.org/). Follow the installation guide for your operating system.
 
-  After installing node, `cd` into the directory and run the following:
+2. After installing node, run the following in the project directory:
 
-```
-npm install -g grunt-cli
-npm install
-```
+        npm install -g grunt-cli
+        npm install
 
-  Run the server:
+3. Run the server:
 
-```
-grunt spritesheet
-```
+      grunt spritesheet
 
 You can visit your local application at `http://localhost:8000/`
