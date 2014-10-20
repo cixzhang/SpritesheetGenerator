@@ -1,20 +1,26 @@
-# Installation
+# Introduction
 
-Requires node.js. After installing node.js:
+[Spritesheet Generator](http://cixzhang.github.io/SpritesheetGenerator) is a web application that generates spritesheet JSONs for use with PIXI.js.
+
+Simply drag and drop your sprites image file into the application and use the tools available to draw frames. Once you're done, the output is shown in the files panel and can be copied. If you need to edit an existing spritesheet, you can drag and drop an existing spritesheet JSON file into the application along with your sprites image file.
+
+# Getting your own version
+
+If you need a version running locally or your own customized spritesheet format, you can fork this repo and run the following installation steps:
+
+1. The local server uses [node.js](http://nodejs.org/). Follow the installation guide for your operating system.
+
+2. After installing node, `cd` into the directory and run the following:
+
 ```
 npm install -g grunt-cli
 npm install
 ```
 
-# Running the server
+3. Run the server:
+
 ```
 grunt spritesheet
 ```
-Visit `http://localhost:8000`
 
-# To use
-Drag and drop your sprite (image) file into the application. Use the tools available to draw frames. The detail panel will show each frame and allow you to set its name or delete a frame.
-
-After you're done editing, the JSON output will be displayed in the files panel.
-
-If you're editing an already existing spritesheet JSON, you can drag and drop it into the application window and your frames will be populated.
+You can visit your local application at `http://localhost:8000/`
