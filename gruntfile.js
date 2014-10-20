@@ -29,7 +29,7 @@ module.exports = function (grunt) {
       templates: {
         options: {processTemplates: false},
         src: ['app/index.html'],
-        dest: 'build/',
+        dest: './',
         replacements: [{
           from: '<!-- TEMPLATES -->',
           to: function () {

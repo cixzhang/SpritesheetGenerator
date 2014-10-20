@@ -1,0 +1,273 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300,600);
+@font-face {
+  font-family: 'fontello';
+  src: url('../build/assets/font/fontello.eot?36903268');
+  src: url('../build/assets/font/fontello.eot?36903268#iefix') format('embedded-opentype'), url('../build/assets/font/fontello.woff?36903268') format('woff'), url('../build/assets/font/fontello.ttf?36903268') format('truetype'), url('../build/assets/font/fontello.svg?36903268#fontello') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'fontello';
+    src: url('../font/fontello.svg?36903268#fontello') format('svg');
+  }
+}
+*/
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  font-family: "fontello";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+.icon-frame:before {
+  content: '\e800';
+}
+/* '' */
+.icon-frameset:before {
+  content: '\e801';
+}
+/* '' */
+.icon-pan:before {
+  content: '\e802';
+}
+/* '' */
+.icon-draw:before {
+  content: '\e803';
+}
+/* '' */
+.icon-arrow-right:before {
+  content: '\e804';
+}
+/* '' */
+.icon-details:before {
+  content: '\e805';
+}
+/* '' */
+.icon-code:before {
+  content: '\e806';
+}
+/* '' */
+.icon-upload:before {
+  content: '\e807';
+}
+/* '' */
+.icon-files:before {
+  content: '\e808';
+}
+/* '' */
+.icon-zoom:before {
+  content: '\e809';
+}
+/* '' */
+.icon-mark:before {
+  content: '\e80a';
+}
+/* '' */
+.icon-close:before {
+  content: '\e80b';
+}
+/* '' */
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-family: 'Open Sans', sans-serif;
+  overflow: hidden;
+}
+ul,
+ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+div.spritesheet {
+  height: 100%;
+  padding-right: 2.8rem;
+}
+div.spritesheet > canvas {
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+}
+div.spritesheet > canvas.draw {
+  cursor: crosshair;
+}
+div.spritesheet > canvas.pan {
+  cursor: move;
+}
+div.sidebar {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-left: 2.8rem;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  font-weight: 300;
+}
+div.toolbar {
+  height: 100%;
+  width: 2.8rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background-color: white;
+}
+div.toolbar div.panels {
+  position: absolute;
+  bottom: 0;
+}
+div.toolbar button {
+  display: block;
+  width: 2.05rem;
+  height: 2.05rem;
+  border-radius: 0.25rem;
+  margin: 0.375rem;
+  text-align: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+div.toolbar button:hover {
+  background-color: rgba(94, 167, 179, 0.1);
+}
+div.toolbar button.active {
+  background-color: rgba(94, 167, 179, 0.35);
+  box-shadow: inset 0 0 0.75rem rgba(0, 0, 0, 0.1);
+}
+div.sidebar > div.panels {
+  width: 28rem;
+  max-width: 28rem;
+  height: 100%;
+  background-color: #eff6f8;
+  overflow: hidden;
+  transition: max-width 0.4s ease;
+  position: relative;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+}
+div.sidebar > div.panels.hidden {
+  max-width: 0;
+}
+div.sidebar > div.panels > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  transition: opactiy 0.4s ease;
+}
+div.sidebar > div.panels > div.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+div.sidebar > div.panels header {
+  height: 2.5rem;
+  width: 100%;
+  line-height: 2.5rem;
+  padding: 0 0.75rem;
+  font-weight: 400;
+  font-size: 1.2rem;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+div.sidebar > div.panels header + * {
+  padding: 0.75rem;
+}
+div.frames ul {
+  height: calc(100% - 2.5rem);
+  overflow: auto;
+}
+div.frames li {
+  display: block;
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 0.25rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+div.frames li:last-of-type {
+  margin-bottom: 0;
+}
+div.frames li.selected {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+div.frames li div {
+  display: inline-block;
+  width: 30%;
+  height: 30%;
+}
+div.frames li input {
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 0.25rem;
+  margin-left: 0.75rem;
+}
+div.frames li canvas,
+div.frames li input {
+  display: inline-block;
+  vertical-align: middle;
+}
+div.frames li i.icon-close {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+  color: #333;
+  opacity: 0.1;
+  cursor: pointer;
+}
+div.frames li i.icon-close:hover {
+  opacity: 0.8;
+}
+div.files > div:first-child {
+  height: 10rem;
+}
+div.files > div:last-child {
+  height: calc(100% - 10rem);
+}
+div.files div.upload li {
+  display: block;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  line-height: 2.5rem;
+}
+div.files div.output div {
+  height: calc(100% - 2.5rem);
+}
+div.files div.output textarea {
+  padding: 0.75rem;
+  height: 100%;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 0.25rem;
+  resize: none;
+}
