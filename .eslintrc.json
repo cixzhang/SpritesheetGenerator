@@ -1,0 +1,24 @@
+{
+  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "commonjs": true,
+    "mocha": true,
+    "es6": true
+  },
+  "rules": {
+    "semi": 1,
+    "no-trailing-spaces": 1,
+    "no-extra-bind": 2
+  },
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [
+    "react"
+  ]
+}

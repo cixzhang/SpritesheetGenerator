@@ -1,13 +1,24 @@
+var _ = require('underscore');
+
 function SpritesheetFrame (data) {
   _.extend(this, this.defaults, data);
   this.id = _.uniqueId('frame');
   return this;
 }
-SpritesheetFrame.prototype.defaults = {name: '', frame: {x: 0, y: 0, w: 0, h: 0}, markers: []};
+
+module.exports = SpritesheetFrame;
+
+SpritesheetFrame.prototype.defaults = {
+  name: '',
+  frame: {x: 0, y: 0, w: 0, h: 0},
+  markers: []
+};
+
 SpritesheetFrame.prototype.isOverlap = function (x, y, w, h) {
   var frame = this.frame;
   return !((x >= frame.x + frame.w || frame.x >= x + w) || (y >= frame.y + frame.h || frame.y >= y + h));
 };
+
 SpritesheetFrame.prototype.getBounds = function (origin, coords) {
   var frame = this.frame,
       xExtent = [Math.min(origin[0], coords[0]), Math.max(origin[0], coords[0])],
@@ -35,8 +46,12 @@ SpritesheetFrame.prototype.getBounds = function (origin, coords) {
 
   return bounds;
 };
+
 SpritesheetFrame.prototype.update = function (data) {
   _.extend(this, data);
   return this;
 };
-SpritesheetFrame.prototype.toJSON = function () { return _.pick(this, 'name', 'frame', 'markers'); };
+
+SpritesheetFrame.prototype.toJSON = function () {
+  return _.pick(this, 'name', 'frame', 'markers');
+};

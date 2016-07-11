@@ -1,5 +1,17 @@
-/** @jsx React.DOM */
-Files = React.createClass({
+
+var _ = require('underscore');
+var React = require('react');
+var T = React.PropTypes;
+
+module.exports = React.createClass({
+  displayName: 'Files',
+  propTypes: {
+    files: T.arrayOf(T.instanceOf(File)).isRequired,
+    addFiles: T.func.isRequired,
+    active: T.bool.isRequired,
+    output: T.string.isRequired
+  },
+
   onDragOver: function (e) { e.preventDefault(); },
   render: function () {
     var files = <span>Drag and drop image or json files.</span>;

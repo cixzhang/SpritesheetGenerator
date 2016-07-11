@@ -1,5 +1,34 @@
-/** @jsx React.DOM */
-Sidebar = React.createClass({
+
+var _ = require('underscore');
+var React = require('react');
+var T = React.PropTypes;
+
+var SpritesheetFrame = require('./spritesheetFrame.js');
+var Frames = require('./frames.jsx');
+var Files = require('./files.jsx');
+var Toggle = require('./toggle.jsx');
+
+module.exports = React.createClass({
+  displayName: 'Sidebar',
+  propTypes: {
+    toggleTool: T.func.isRequired,
+    togglePanel: T.func.isRequired,
+    tools: T.arrayOf(T.string).isRequired,
+    panels: T.arrayOf(T.string).isRequired,
+    activeTool: T.string.isRequired,
+    activePanel: T.string.isRequired,
+    frames : T.arrayOf(T.instanceof(SpritesheetFrame)).isRequired,
+    selectFrame: T.func.isRequired,
+    addFrame: T.func.isRequired,
+    updateFrame: T.func.isRequired,
+    deleteFrame: T.func.isRequired,
+    files: T.arrayOf(T.instanceOf(File)).isRequired,
+    addFiles: T.func.isRequired,
+    output: T.string.isRequired,
+    selected: T.string.isRequired,
+    sprite: T.instanceof(Image).isRequired
+  },
+
   wrapToggleTool: function (tool) {
     return function () { this.props.toggleTool(tool); }.bind(this);
   },
@@ -21,7 +50,7 @@ Sidebar = React.createClass({
           <div className='panels'>{panels}</div>
         </div>
         <div className={'panels'+ (this.props.activePanel ? '' : ' hidden')}>
-          <Frames 
+          <Frames
             active={this.props.activePanel === 'details'}
             sprite={this.props.sprite}
             frames={this.props.frames}
@@ -29,7 +58,7 @@ Sidebar = React.createClass({
             selectFrame={this.props.selectFrame}
             deleteFrame={this.props.deleteFrame}
             selected={this.props.selected} />
-          <Files 
+          <Files
               active={this.props.activePanel === 'files'}
               files={_.pairs(this.props.files)}
               addFiles={this.props.addFiles}

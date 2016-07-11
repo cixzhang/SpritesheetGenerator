@@ -1,5 +1,23 @@
-/** @jsx React.DOM */
-Frames = React.createClass({
+
+var _ = require('underscore');
+var React = require('react');
+var T = React.PropTypes;
+
+var SpritesheetFrame = require('./spritesheetFrame.js');
+var Frame = require('./frame.jsx');
+
+module.exports = React.createClass({
+  displayName: 'Frames',
+  propTypes: {
+    active: T.bool.isRequired,
+    selected: T.string.isRequired,
+    frames : T.arrayOf(T.instanceof(SpritesheetFrame)).isRequired,
+    updateFrame: T.func.isRequired,
+    deleteFrame: T.func.isRequired,
+    selectFrame: T.func.isRequired,
+    sprite: T.instanceof(Image).isRequired
+  },
+
   wrapUpdateFrame: function (frame) {
     return function (data) { this.props.updateFrame(frame, data); }.bind(this);
   },
@@ -12,8 +30,7 @@ Frames = React.createClass({
           <header>Frames</header>
           <ul>{
             _.map(this.props.frames, function (frameData) {
-              var frame = frameData.frame;
-              return <Frame 
+              return <Frame
                   isSelected={this.props.selected === frameData.id ? true: false}
                   key={frameData.id}
                   frameData={frameData}

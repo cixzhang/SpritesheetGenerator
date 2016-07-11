@@ -1,5 +1,15 @@
-/** @jsx React.DOM */
-Toggle = React.createClass({
+
+var React = require('react');
+var T = React.PropTypes;
+
+module.exports = React.createClass({
+  displayName: 'Toggle',
+  propTypes: {
+    active: T.bool.isRequired,
+    key: T.string.isRequired,
+    toggle: T.func.isRequired
+  },
+
   onClick: function () { this.props.toggle(); },
   render: function () {
     return (

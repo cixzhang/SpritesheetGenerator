@@ -1,26 +1,36 @@
-/** @jsx React.DOM */
-Generator = React.createClass({
+
+var _ = require('underscore');
+var React = require('react');
+var Spritesheet = require('./spritesheet.js');
+
+var Display = require('./display.jsx');
+var Sidebar = require('./sidebar.jsx');
+
+module.exports = React.createClass({
+  displayName: 'Generator',
+
   readers: {
     json: new FileReader,
     image: new FileReader
   },
+
   getInitialState: function () {
     return {
       // files and data
       files: {},
       sprite: new Image,
       spritesheet: new Spritesheet(),
-      output: null,
+      output: '',
 
       // interactions
-      selected: null,
+      selected: '',
 
       // toolbar toggles
       tools: ['pan', 'draw'],
       activeTool: 'pan',
-      
+
       panels: ['details', 'files'],
-      activePanel: null
+      activePanel: ''
     };
   },
 
@@ -68,7 +78,9 @@ Generator = React.createClass({
   onReadJSON: function (e) {
     this.setState({spritesheet: this.state.spritesheet.load(e.target.result)});
   },
-  onDragOver: function (e) { this.setState({activePanel: 'files'}); },
+  onDragOver: function () {
+    this.setState({activePanel: 'files'});
+  },
   onDrop: function (e) {
     e.stopPropagation();
     e.preventDefault();
@@ -85,9 +97,9 @@ Generator = React.createClass({
       <div className='spritesheet'
           onDrop={this.onDrop}
           onDragOver={this.onDragOver} >
-        <Display 
+        <Display
             sprite={this.state.sprite}
-            frames={this.state.spritesheet.frames} 
+            frames={this.state.spritesheet.frames}
             addFrame={this.addFrame}
             selectFrame={this.selectFrame}
             selected={this.state.selected}

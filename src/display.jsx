@@ -1,5 +1,21 @@
-/** @jsx React.DOM */
-Display = React.createClass({
+
+var _ = require('underscore');
+var React = require('react');
+var T = React.PropTypes;
+
+var SpritesheetFrame = require('./spritesheetFrame.js');
+
+module.exports = React.createClass({
+  displayName: 'Display',
+  propTypes: {
+    selected: T.string.isRequired,
+    activeTool: T.string.isRequired,
+    frames : T.arrayOf(T.instanceof(SpritesheetFrame)).isRequired,
+    sprite: T.instanceof(Image).isRequired,
+    selectFrame: T.func.isRequired,
+    addFrame: T.func.isRequired
+  },
+
   getInitialState: function () {
     return {
       grid: 16, grid_sm: 1, scale: 4,
@@ -71,10 +87,9 @@ Display = React.createClass({
   onMouseDown: function (e) {
     var x = e.clientX, y = e.clientY;
     if (this.props.activeTool === 'draw') {
-        x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
-        y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
-        rect = {x: x, y: y, w: 0, h: 0},
-        inFrames = this.checkFrame(rect);
+      x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
+      y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
+      var rect = {x: x, y: y, w: 0, h: 0};
       this.setState({drawRect: rect});
     }
     this.checkMove = [x, y];
@@ -91,7 +106,7 @@ Display = React.createClass({
             x: this.checkMove[0],
             y: this.checkMove[1],
             x2: Math.min(Math.max(x, bounds.left), bounds.right),
-            y2: Math.min(Math.max(y, bounds.top), bounds.bottom),
+            y2: Math.min(Math.max(y, bounds.top), bounds.bottom)
           });
       this.setState({drawRect: rect});
     } else if (this.props.activeTool === 'pan') {
@@ -104,7 +119,7 @@ Display = React.createClass({
     }
   },
 
-  onMouseUp: function (e) {
+  onMouseUp: function () {
     if (this.props.activeTool === 'draw') {
       var rect = this.state.drawRect,
           overlap = this.checkFrame(rect);
@@ -129,7 +144,7 @@ Display = React.createClass({
               bounds.left = Math.max(bounds.left, frameBounds.left);
               bounds.right = Math.min(bounds.right, frameBounds.right);
               return bounds;
-            }.bind(this), {top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity});
+            }, {top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity});
     return bounds;
   },
 
