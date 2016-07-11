@@ -3,8 +3,7 @@
   "description": "Generating spritesheets for PIXI.js",
   "version": "1.0.0",
   "scripts": {
-    "prepublish": "npm run build-css && webpack",
-    "build-css": "lessc src/css/build.less build/styles.css"
+    "prepublish": "lessc src/css/build.less build/styles.css && webpack"
   },
   "dependencies": {
     "less": "^2.7.1",
