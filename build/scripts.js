@@ -49,7 +49,7 @@
 	var ReactDOM = __webpack_require__(33);
 	var Generator = __webpack_require__(172);
 
-	ReactDOM.render(React.createElement(Generator, null), document.body);
+	ReactDOM.render(React.createElement(Generator, null), document.getElementById('generator'));
 
 /***/ },
 /* 1 */
@@ -21106,7 +21106,10 @@
 	  getInitialState: function () {
 	    return {
 	      // files and data
-	      files: {},
+	      files: {
+	        image: null,
+	        json: null
+	      },
 	      sprite: new Image(),
 	      spritesheet: new Spritesheet(),
 	      output: '',
@@ -22927,8 +22930,8 @@
 	  propTypes: {
 	    selected: T.string.isRequired,
 	    activeTool: T.string.isRequired,
-	    frames: T.arrayOf(T.instanceof(SpritesheetFrame)).isRequired,
-	    sprite: T.instanceof(Image).isRequired,
+	    frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
+	    sprite: T.instanceOf(Image).isRequired,
 	    selectFrame: T.func.isRequired,
 	    addFrame: T.func.isRequired
 	  },
@@ -23083,8 +23086,8 @@
 	  },
 
 	  renderCanvas: function () {
-	    var canvas = this.refs.canvas.getDOMNode(),
-	        context = canvas.getContext('2d');
+	    var canvas = this.refs.canvas;
+	    var context = canvas.getContext('2d');
 
 	    canvas.width = canvas.getBoundingClientRect().width;
 	    canvas.height = canvas.getBoundingClientRect().height;
@@ -23134,17 +23137,19 @@
 	    tools: T.arrayOf(T.string).isRequired,
 	    panels: T.arrayOf(T.string).isRequired,
 	    activeTool: T.string.isRequired,
-	    activePanel: T.string.isRequired,
-	    frames: T.arrayOf(T.instanceof(SpritesheetFrame)).isRequired,
+	    activePanel: T.string,
+	    frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
 	    selectFrame: T.func.isRequired,
-	    addFrame: T.func.isRequired,
 	    updateFrame: T.func.isRequired,
 	    deleteFrame: T.func.isRequired,
-	    files: T.arrayOf(T.instanceOf(File)).isRequired,
+	    files: T.shape({
+	      image: T.instanceOf(File),
+	      json: T.instanceOf(File)
+	    }).isRequired,
 	    addFiles: T.func.isRequired,
 	    output: T.string.isRequired,
 	    selected: T.string.isRequired,
-	    sprite: T.instanceof(Image).isRequired
+	    sprite: T.instanceOf(Image).isRequired
 	  },
 
 	  wrapToggleTool: function (tool) {
@@ -23159,10 +23164,10 @@
 	  },
 	  render: function () {
 	    var tools = _.map(this.props.tools, function (tool) {
-	      return React.createElement(Toggle, { key: tool, toggle: this.wrapToggleTool(tool), active: this.props.activeTool === tool });
+	      return React.createElement(Toggle, { key: tool, icon: tool, toggle: this.wrapToggleTool(tool), active: this.props.activeTool === tool });
 	    }.bind(this)),
 	        panels = _.map(this.props.panels, function (panel) {
-	      return React.createElement(Toggle, { key: panel, toggle: this.wrapTogglePanel(panel), active: this.props.activePanel === panel });
+	      return React.createElement(Toggle, { key: panel, icon: panel, toggle: this.wrapTogglePanel(panel), active: this.props.activePanel === panel });
 	    }.bind(this));
 
 	    return React.createElement(
@@ -23195,7 +23200,7 @@
 	          selected: this.props.selected }),
 	        React.createElement(Files, {
 	          active: this.props.activePanel === 'files',
-	          files: _.pairs(this.props.files),
+	          files: this.props.files,
 	          addFiles: this.props.addFiles,
 	          output: this.props.output })
 	      )
@@ -23220,11 +23225,11 @@
 	  propTypes: {
 	    active: T.bool.isRequired,
 	    selected: T.string.isRequired,
-	    frames: T.arrayOf(T.instanceof(SpritesheetFrame)).isRequired,
+	    frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
 	    updateFrame: T.func.isRequired,
 	    deleteFrame: T.func.isRequired,
 	    selectFrame: T.func.isRequired,
-	    sprite: T.instanceof(Image).isRequired
+	    sprite: T.instanceOf(Image).isRequired
 	  },
 
 	  wrapUpdateFrame: function (frame) {
@@ -23282,7 +23287,7 @@
 	    deleteFrame: T.func.isRequired,
 	    selectFrame: T.func.isRequired,
 	    isSelected: T.bool.isRequired,
-	    sprite: T.instanceof(Image).isRequired
+	    sprite: T.instanceOf(Image).isRequired
 	  },
 
 	  componentDidMount: function () {
@@ -23301,12 +23306,12 @@
 	    this.props.deleteFrame();
 	  },
 	  renderCanvas: function () {
-	    var AREA = 3600,
-	        canvas = this.refs.canvas.getDOMNode(),
-	        context = canvas.getContext('2d'),
-	        frame = this.props.frameData.frame,
-	        width = Math.floor(Math.sqrt(AREA * frame.w / frame.h)),
-	        height = width * frame.h / frame.w;
+	    var AREA = 3600;
+	    var canvas = this.refs.canvas;
+	    var context = canvas.getContext('2d');
+	    var frame = this.props.frameData.frame;
+	    var width = Math.floor(Math.sqrt(AREA * frame.w / frame.h));
+	    var height = width * frame.h / frame.w;
 
 	    canvas.width = width;
 	    canvas.height = height;
@@ -23347,7 +23352,10 @@
 	module.exports = React.createClass({
 	  displayName: 'Files',
 	  propTypes: {
-	    files: T.arrayOf(T.instanceOf(File)).isRequired,
+	    files: T.shape({
+	      image: T.instanceOf(File),
+	      json: T.instanceOf(File)
+	    }).isRequired,
 	    addFiles: T.func.isRequired,
 	    active: T.bool.isRequired,
 	    output: T.string.isRequired
@@ -23357,18 +23365,23 @@
 	    e.preventDefault();
 	  },
 	  render: function () {
-	    var files = React.createElement(
+	    var filesHtml = React.createElement(
 	      'span',
 	      null,
 	      'Drag and drop image or json files.'
 	    );
-	    if (this.props.files.length) files = _.map(this.props.files, function (file) {
-	      return React.createElement(
-	        'li',
-	        { key: file[0] },
-	        file[1].name
-	      );
+	    var files = _.filter(_.pairs(this.props.files), function (v) {
+	      return v[1];
 	    });
+	    if (files.length) {
+	      filesHtml = _.map(files, function (file) {
+	        return React.createElement(
+	          'li',
+	          { key: file[0] },
+	          file[1].name
+	        );
+	      });
+	    }
 	    return React.createElement(
 	      'div',
 	      { className: 'files' + (this.props.active ? '' : ' hidden'),
@@ -23385,7 +23398,7 @@
 	        React.createElement(
 	          'ul',
 	          null,
-	          files
+	          filesHtml
 	        )
 	      ),
 	      React.createElement(
@@ -23418,7 +23431,7 @@
 	  displayName: 'Toggle',
 	  propTypes: {
 	    active: T.bool.isRequired,
-	    key: T.string.isRequired,
+	    icon: T.string.isRequired,
 	    toggle: T.func.isRequired
 	  },
 
@@ -23432,7 +23445,7 @@
 	        className: this.props.active ? 'active' : '',
 	        onClick: this.onClick,
 	        type: 'button' },
-	      React.createElement('i', { className: 'icon-' + this.props.key })
+	      React.createElement('i', { className: 'icon-' + this.props.icon })
 	    );
 	  }
 	});

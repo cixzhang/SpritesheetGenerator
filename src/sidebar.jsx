@@ -16,17 +16,19 @@ module.exports = React.createClass({
     tools: T.arrayOf(T.string).isRequired,
     panels: T.arrayOf(T.string).isRequired,
     activeTool: T.string.isRequired,
-    activePanel: T.string.isRequired,
-    frames : T.arrayOf(T.instanceof(SpritesheetFrame)).isRequired,
+    activePanel: T.string,
+    frames : T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
     selectFrame: T.func.isRequired,
-    addFrame: T.func.isRequired,
     updateFrame: T.func.isRequired,
     deleteFrame: T.func.isRequired,
-    files: T.arrayOf(T.instanceOf(File)).isRequired,
+    files: T.shape({
+      image: T.instanceOf(File),
+      json: T.instanceOf(File)
+    }).isRequired,
     addFiles: T.func.isRequired,
     output: T.string.isRequired,
     selected: T.string.isRequired,
-    sprite: T.instanceof(Image).isRequired
+    sprite: T.instanceOf(Image).isRequired
   },
 
   wrapToggleTool: function (tool) {
@@ -37,10 +39,10 @@ module.exports = React.createClass({
   },
   render: function () {
     var tools = _.map(this.props.tools, function (tool) {
-              return <Toggle key={tool} toggle={this.wrapToggleTool(tool)} active={this.props.activeTool === tool} />;
+              return <Toggle key={tool} icon={tool} toggle={this.wrapToggleTool(tool)} active={this.props.activeTool === tool} />;
             }.bind(this)),
         panels = _.map(this.props.panels, function (panel) {
-              return <Toggle key={panel} toggle={this.wrapTogglePanel(panel)} active={this.props.activePanel === panel} />;
+              return <Toggle key={panel} icon={panel} toggle={this.wrapTogglePanel(panel)} active={this.props.activePanel === panel} />;
             }.bind(this));
 
     return (
@@ -60,7 +62,7 @@ module.exports = React.createClass({
             selected={this.props.selected} />
           <Files
               active={this.props.activePanel === 'files'}
-              files={_.pairs(this.props.files)}
+              files={this.props.files}
               addFiles={this.props.addFiles}
               output={this.props.output} />
         </div>

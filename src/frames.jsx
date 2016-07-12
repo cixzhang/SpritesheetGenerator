@@ -11,11 +11,11 @@ module.exports = React.createClass({
   propTypes: {
     active: T.bool.isRequired,
     selected: T.string.isRequired,
-    frames : T.arrayOf(T.instanceof(SpritesheetFrame)).isRequired,
+    frames : T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
     updateFrame: T.func.isRequired,
     deleteFrame: T.func.isRequired,
     selectFrame: T.func.isRequired,
-    sprite: T.instanceof(Image).isRequired
+    sprite: T.instanceOf(Image).isRequired
   },
 
   wrapUpdateFrame: function (frame) {

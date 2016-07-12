@@ -10,8 +10,8 @@ module.exports = React.createClass({
   propTypes: {
     selected: T.string.isRequired,
     activeTool: T.string.isRequired,
-    frames : T.arrayOf(T.instanceof(SpritesheetFrame)).isRequired,
-    sprite: T.instanceof(Image).isRequired,
+    frames : T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
+    sprite: T.instanceOf(Image).isRequired,
     selectFrame: T.func.isRequired,
     addFrame: T.func.isRequired
   },
@@ -166,8 +166,8 @@ module.exports = React.createClass({
   componentDidUpdate: function () { this.renderCanvas(); },
 
   renderCanvas: function () {
-    var canvas = this.refs.canvas.getDOMNode(),
-        context = canvas.getContext('2d');
+    var canvas = this.refs.canvas;
+    var context = canvas.getContext('2d');
 
     canvas.width = canvas.getBoundingClientRect().width;
     canvas.height = canvas.getBoundingClientRect().height;

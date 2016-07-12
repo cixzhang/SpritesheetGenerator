@@ -6,7 +6,7 @@ module.exports = React.createClass({
   displayName: 'Toggle',
   propTypes: {
     active: T.bool.isRequired,
-    key: T.string.isRequired,
+    icon: T.string.isRequired,
     toggle: T.func.isRequired
   },
 
@@ -17,7 +17,7 @@ module.exports = React.createClass({
           className={this.props.active ? 'active' : ''}
           onClick={this.onClick}
           type='button' >
-        <i className={'icon-' + this.props.key}></i>
+        <i className={'icon-' + this.props.icon}></i>
       </button>
     );
   }

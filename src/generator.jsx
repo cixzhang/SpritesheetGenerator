@@ -17,7 +17,10 @@ module.exports = React.createClass({
   getInitialState: function () {
     return {
       // files and data
-      files: {},
+      files: {
+        image: null,
+        json: null
+      },
       sprite: new Image,
       spritesheet: new Spritesheet(),
       output: '',

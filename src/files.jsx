@@ -6,7 +6,10 @@ var T = React.PropTypes;
 module.exports = React.createClass({
   displayName: 'Files',
   propTypes: {
-    files: T.arrayOf(T.instanceOf(File)).isRequired,
+    files: T.shape({
+      image: T.instanceOf(File),
+      json: T.instanceOf(File)
+    }).isRequired,
     addFiles: T.func.isRequired,
     active: T.bool.isRequired,
     output: T.string.isRequired
@@ -14,16 +17,20 @@ module.exports = React.createClass({
 
   onDragOver: function (e) { e.preventDefault(); },
   render: function () {
-    var files = <span>Drag and drop image or json files.</span>;
-    if (this.props.files.length)
-      files = _.map(this.props.files, function (file) { return <li key={file[0]}>{file[1].name}</li>; });
+    var filesHtml = <span>Drag and drop image or json files.</span>;
+    var files = _.filter(_.pairs(this.props.files), function (v) { return v[1]; });
+    if (files.length) {
+      filesHtml = _.map(files, function (file) {
+        return <li key={file[0]}>{file[1].name}</li>;
+      });
+    }
     return (
       <div className={'files' + (this.props.active ? '' : ' hidden')}
           onDrop={this.props.addFiles}
           onDragOver={this.onDragOver} >
         <div className='upload'>
           <header>Files</header>
-          <ul>{files}</ul>
+          <ul>{filesHtml}</ul>
         </div>
         <div className='output'>
           <header>Output</header>

@@ -12,7 +12,7 @@ module.exports = React.createClass({
     deleteFrame: T.func.isRequired,
     selectFrame: T.func.isRequired,
     isSelected: T.bool.isRequired,
-    sprite: T.instanceof(Image).isRequired
+    sprite: T.instanceOf(Image).isRequired
   },
 
   componentDidMount: function () { this.renderCanvas(); },
@@ -21,12 +21,12 @@ module.exports = React.createClass({
   onSelectFrame: function () { this.props.selectFrame(this.props.frameData); },
   onDeleteFrame: function () { this.props.deleteFrame(); },
   renderCanvas: function () {
-    var AREA = 3600,
-        canvas = this.refs.canvas.getDOMNode(),
-        context = canvas.getContext('2d'),
-        frame = this.props.frameData.frame,
-        width = Math.floor(Math.sqrt(AREA * frame.w / frame.h)),
-        height = width * frame.h / frame.w;
+    var AREA = 3600;
+    var canvas = this.refs.canvas;
+    var context = canvas.getContext('2d');
+    var frame = this.props.frameData.frame;
+    var width = Math.floor(Math.sqrt(AREA * frame.w / frame.h));
+    var height = width * frame.h / frame.w;
 
     canvas.width = width;
     canvas.height = height;
