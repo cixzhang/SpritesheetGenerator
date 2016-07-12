@@ -6,6 +6,9 @@
     "prepublish": "lessc src/css/build.less build/styles.css && webpack"
   },
   "dependencies": {
+    "babel-core": "^6.10.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-react": "^6.11.1",
     "less": "^2.7.1",
     "react": "^15.2.1",
     "react-dom": "^15.2.1",

@@ -21213,7 +21213,7 @@
 	        // files panel
 	        , files: this.state.files,
 	        addFiles: this.onDrop,
-	        output: JSON.stringify(this.state.spritesheet)
+	        output: JSON.stringify(this.state.spritesheet, null, 2)
 
 	        // frames panel
 	        , sprite: this.state.sprite,
