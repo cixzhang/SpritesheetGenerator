@@ -1,0 +1,6 @@
+
+.icon-draw:before { content: '\e800'; } /* '' */
+.icon-select:before { content: '\e801'; } /* '' */
+.icon-details:before { content: '\e802'; } /* '' */
+.icon-files:before { content: '\e806'; } /* '' */
+.icon-pan:before { content: '\f047'; } /* '' */
