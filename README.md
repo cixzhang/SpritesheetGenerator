@@ -6,7 +6,8 @@ Drag and drop your sprites image file into the application and use the tools ava
 
 # Development
 
-## Loading and modifying icons
+Loading and modifying icons
+===========================
 
 To load icons:
 
