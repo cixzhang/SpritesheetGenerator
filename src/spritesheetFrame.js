@@ -11,7 +11,7 @@ module.exports = SpritesheetFrame;
 SpritesheetFrame.prototype.defaults = {
   name: '',
   frame: {x: 0, y: 0, w: 0, h: 0},
-  markers: []
+  meta: {}
 };
 
 SpritesheetFrame.prototype.isOverlap = function (x, y, w, h) {
@@ -53,5 +53,5 @@ SpritesheetFrame.prototype.update = function (data) {
 };
 
 SpritesheetFrame.prototype.toJSON = function () {
-  return _.pick(this, 'name', 'frame', 'markers');
+  return _.pick(this, 'name', 'frame', 'meta');
 };
