@@ -42,7 +42,10 @@ module.exports = React.createClass({
     _.each(files, function (file) {
       if (file.type === 'image/png') {
         this.readers.image.readAsDataURL(file);
-        this.setState({files: _.extend(this.state.files, {image: file})});
+        this.setState({
+          spritesheet: this.state.spritesheet.editMeta('image', file.name),
+          files: _.extend(this.state.files, {image: file})
+        });
       }
       if (file.name.substr(-5) === '.json') {
         this.readers.json.readAsText(file);

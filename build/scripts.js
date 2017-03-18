@@ -21131,7 +21131,10 @@
 	    _.each(files, function (file) {
 	      if (file.type === 'image/png') {
 	        this.readers.image.readAsDataURL(file);
-	        this.setState({ files: _.extend(this.state.files, { image: file }) });
+	        this.setState({
+	          spritesheet: this.state.spritesheet.editMeta('image', file.name),
+	          files: _.extend(this.state.files, { image: file })
+	        });
 	      }
 	      if (file.name.substr(-5) === '.json') {
 	        this.readers.json.readAsText(file);
@@ -22847,6 +22850,11 @@
 	  var frame = this._framesById(id);
 	  frame.update(data);
 	  return this.updateFrames();
+	};
+
+	Spritesheet.prototype.editMeta = function (key, value) {
+	  this.meta[key] = value;
+	  return this;
 	};
 
 	Spritesheet.prototype.toJSON = function () {

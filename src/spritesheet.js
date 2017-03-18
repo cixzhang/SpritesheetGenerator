@@ -58,6 +58,11 @@ Spritesheet.prototype.editFrame = function (id, data) {
   return this.updateFrames();
 };
 
+Spritesheet.prototype.editMeta = function (key, value) {
+  this.meta[key] = value;
+  return this;
+};
+
 Spritesheet.prototype.toJSON = function () {
   return _.pick(this, 'frames', 'meta');
 };
