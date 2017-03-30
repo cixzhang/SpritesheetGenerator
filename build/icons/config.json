@@ -35,6 +35,12 @@
       "css": "select",
       "code": 59393,
       "src": "iconic"
+    },
+    {
+      "uid": "1dq4tek4k8ea7zlj4kc3w83itnutaxg5",
+      "css": "close",
+      "code": 59395,
+      "src": "typicons"
     }
   ]
 }

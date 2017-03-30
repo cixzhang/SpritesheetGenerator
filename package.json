@@ -3,7 +3,7 @@
   "description": "Generating spritesheets for PIXI.js",
   "version": "1.0.0",
   "scripts": {
-    "prepublish": "npm run less && webpack",
+    "prepublish": "npm run icons && npm run less && webpack",
     "icons": "node load-icons.js",
     "less": "lessc src/css/build.less build/styles.css"
   },

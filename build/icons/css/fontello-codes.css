@@ -2,5 +2,6 @@
 .icon-draw:before { content: '\e800'; } /* '' */
 .icon-select:before { content: '\e801'; } /* '' */
 .icon-details:before { content: '\e802'; } /* '' */
+.icon-close:before { content: '\e803'; } /* '' */
 .icon-files:before { content: '\e806'; } /* '' */
 .icon-pan:before { content: '\f047'; } /* '' */
