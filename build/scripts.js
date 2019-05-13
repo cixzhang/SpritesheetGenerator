@@ -22781,137 +22781,134 @@
 	var _ = __webpack_require__(173);
 	var SpritesheetFrame = __webpack_require__(175);
 
-	function Spritesheet(data) {
-	  _.extend(this, this.defaults, data);
-	  this.map = {};
-	  this._framesById = {};
-	  return this;
+	class Spritesheet {
+	  constructor(data = {}) {
+	    this.frames = data.frames || [];
+	    this.meta = data.meta || {};
+
+	    this._framesById = {};
+	    return this;
+	  }
+
+	  load(json) {
+	    /* eslint no-console: [0] */
+	    var data;
+	    try {
+	      data = JSON.parse(json);
+	    } catch (e) {
+	      console.warn('Parsing failed with ' + e);
+	      return;
+	    }
+
+	    if (data.meta) this.meta = data.meta;
+	    if (!data.frames) data.frames = [];
+	    this.addFrames(data.frames);
+	    return this;
+	  }
+
+	  updateFrames() {
+	    this.frames = _.sortBy(_.toArray(this._framesById), 'id');
+	    return this;
+	  }
+
+	  addFrames(frames) {
+	    if (!(frames instanceof Array)) frames = [frames];
+	    _.each(frames, function (frame) {
+	      frame = frame instanceof SpritesheetFrame ? frame : new SpritesheetFrame(frame);
+	      this._framesById[frame.id] = frame;
+	    }.bind(this));
+	    return this.updateFrames();
+	  }
+
+	  deleteFrames(frames) {
+	    if (!(frames instanceof Array)) frames = [frames];
+	    _.each(frames, function (frame) {
+	      delete this._framesById[frame.id];
+	    }.bind(this));
+	    return this.updateFrames();
+	  }
+
+	  editFrame(id, data) {
+	    var frame = this._framesById(id);
+	    frame.update(data);
+	    return this.updateFrames();
+	  }
+
+	  editMeta(key, value) {
+	    this.meta[key] = value;
+	    return this;
+	  }
+
+	  toJSON() {
+	    return _.pick(this, 'frames', 'meta');
+	  }
 	}
 
 	module.exports = Spritesheet;
-
-	Spritesheet.prototype.defaults = {
-	  frames: [],
-	  meta: {}
-	};
-
-	Spritesheet.prototype.load = function (json) {
-	  /* eslint no-console: [0] */
-	  var data;
-	  try {
-	    data = JSON.parse(json);
-	  } catch (e) {
-	    console.warn('Parsing failed with ' + e);
-	    return;
-	  }
-
-	  if (data.meta) this.meta = data.meta;
-	  if (!data.frames) data.frames = [];
-	  this.addFrames(data.frames);
-	  return this;
-	};
-
-	Spritesheet.prototype.updateFrames = function () {
-	  this.map = {};
-	  _.each(this._framesById, function (frame) {
-	    this.map[frame.id] = frame;
-	  }.bind(this));
-	  this.frames = _.sortBy(_.toArray(this.map), 'name');
-	  return this;
-	};
-
-	Spritesheet.prototype.addFrames = function (frames) {
-	  if (!(frames instanceof Array)) frames = [frames];
-	  _.each(frames, function (frame) {
-	    frame = frame instanceof SpritesheetFrame ? frame : new SpritesheetFrame(frame);
-	    this._framesById[frame.id] = frame;
-	  }.bind(this));
-	  return this.updateFrames();
-	};
-
-	Spritesheet.prototype.deleteFrames = function (frames) {
-	  if (!(frames instanceof Array)) frames = [frames];
-	  _.each(frames, function (frame) {
-	    delete this._framesById[frame.id];
-	  }.bind(this));
-	  return this.updateFrames();
-	};
-
-	Spritesheet.prototype.editFrame = function (id, data) {
-	  var frame = this._framesById(id);
-	  frame.update(data);
-	  return this.updateFrames();
-	};
-
-	Spritesheet.prototype.editMeta = function (key, value) {
-	  this.meta[key] = value;
-	  return this;
-	};
-
-	Spritesheet.prototype.toJSON = function () {
-	  return _.pick(this, 'frames', 'meta');
-	};
 
 /***/ },
 /* 175 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _ = __webpack_require__(173);
+	var index = 0;
 
-	function SpritesheetFrame(data) {
-	  _.extend(this, this.defaults, data);
-	  this.id = _.uniqueId('frame');
-	  return this;
+	class SpritesheetFrame {
+	  constructor(data = {}) {
+	    this.name = '';
+	    this.frame = { x: 0, y: 0, w: 0, h: 0 };
+	    this.meta = {};
+
+	    this.id = index++;
+	    this.update(data);
+	    return this;
+	  }
+
+	  update(data = {}) {
+	    this.name = data.name || this.name;
+	    this.frame = data.frame || this.frame;
+	    this.meta = data.meta || this.meta;
+	    return this;
+	  }
+
+	  isOverlap(x, y, w, h) {
+	    var frame = this.frame;
+	    return !(x >= frame.x + frame.w || frame.x >= x + w || y >= frame.y + frame.h || frame.y >= y + h);
+	  }
+
+	  getBounds(origin, coords) {
+	    var frame = this.frame,
+	        xExtent = [Math.min(origin[0], coords[0]), Math.max(origin[0], coords[0])],
+	        yExtent = [Math.min(origin[1], coords[1]), Math.max(origin[1], coords[1])],
+	        xCritical = frame.x + frame.w > xExtent[0] && frame.x < xExtent[1],
+	        yCritical = frame.y + frame.h > yExtent[0] && frame.y < yExtent[1],
+	        bounds = { top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity };
+
+	    if (xCritical) {
+	      if (origin[1] <= frame.y) bounds.bottom = frame.y;
+	      if (origin[1] >= frame.y + frame.h) bounds.top = frame.y + frame.h;
+	    }
+
+	    if (yCritical) {
+	      if (origin[0] <= frame.x) bounds.right = frame.x;
+	      if (origin[0] >= frame.x + frame.w) bounds.left = frame.x + frame.w;
+	    }
+
+	    if (xCritical && yCritical) {
+	      var dx = Math.min(Math.abs(coords[0] - bounds.left), Math.abs(coords[0] - bounds.right)),
+	          dy = Math.min(Math.abs(coords[1] - bounds.top), Math.abs(coords[1] - bounds.bottom));
+	      if (dx < dy) _.extend(bounds, { top: -Infinity, bottom: Infinity });else _.extend(bounds, { left: -Infinity, right: Infinity });
+	    }
+
+	    return bounds;
+	  }
+
+	  toJSON() {
+	    return _.pick(this, 'name', 'frame', 'meta');
+	  }
 	}
 
 	module.exports = SpritesheetFrame;
-
-	SpritesheetFrame.prototype.defaults = {
-	  name: '',
-	  frame: { x: 0, y: 0, w: 0, h: 0 },
-	  meta: {}
-	};
-
-	SpritesheetFrame.prototype.isOverlap = function (x, y, w, h) {
-	  var frame = this.frame;
-	  return !(x >= frame.x + frame.w || frame.x >= x + w || y >= frame.y + frame.h || frame.y >= y + h);
-	};
-
-	SpritesheetFrame.prototype.getBounds = function (origin, coords) {
-	  var frame = this.frame,
-	      xExtent = [Math.min(origin[0], coords[0]), Math.max(origin[0], coords[0])],
-	      yExtent = [Math.min(origin[1], coords[1]), Math.max(origin[1], coords[1])],
-	      xCritical = frame.x + frame.w > xExtent[0] && frame.x < xExtent[1],
-	      yCritical = frame.y + frame.h > yExtent[0] && frame.y < yExtent[1],
-	      bounds = { top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity };
-
-	  if (xCritical) {
-	    if (origin[1] <= frame.y) bounds.bottom = frame.y;
-	    if (origin[1] >= frame.y + frame.h) bounds.top = frame.y + frame.h;
-	  }
-
-	  if (yCritical) {
-	    if (origin[0] <= frame.x) bounds.right = frame.x;
-	    if (origin[0] >= frame.x + frame.w) bounds.left = frame.x + frame.w;
-	  }
-
-	  if (xCritical && yCritical) {
-	    var dx = Math.min(Math.abs(coords[0] - bounds.left), Math.abs(coords[0] - bounds.right)),
-	        dy = Math.min(Math.abs(coords[1] - bounds.top), Math.abs(coords[1] - bounds.bottom));
-	    if (dx < dy) _.extend(bounds, { top: -Infinity, bottom: Infinity });else _.extend(bounds, { left: -Infinity, right: Infinity });
-	  }
-
-	  return bounds;
-	};
-
-	SpritesheetFrame.prototype.update = function (data) {
-	  _.extend(this, data);
-	  return this;
-	};
-
-	SpritesheetFrame.prototype.toJSON = function () {
-	  return _.pick(this, 'name', 'frame', 'meta');
-	};
 
 /***/ },
 /* 176 */
@@ -22951,8 +22948,8 @@
 	      if (this.props.activeTool === 'draw') {
 	        x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
 	        y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
-	        var bounds = this.getBounds(this.checkMove, [x, y]),
-	            rect = this.getRect({
+	        var bounds = this.getBounds(this.checkMove, [x, y]);
+	        var rect = this.getRect({
 	          x: this.checkMove[0],
 	          y: this.checkMove[1],
 	          x2: Math.min(Math.max(x, bounds.left), bounds.right),
@@ -22969,10 +22966,14 @@
 	      }
 	    }, this.onMouseUp = () => {
 	      if (this.props.activeTool === 'draw') {
-	        var rect = this.state.drawRect,
-	            overlap = this.checkFrame(rect);
-	        if (overlap.length) this.props.selectFrame(overlap[0]);else if (rect.w * rect.h > 0) this.props.addFrame({ name: '', frame: rect });
-	        this.setState({ drawRect: this.getInitialState().drawRect });
+	        var rect = this.state.drawRect;
+	        var overlap = this.checkFrame(rect);
+	        if (overlap.length) {
+	          this.props.selectFrame(overlap[0]);
+	        } else if (rect.w * rect.h > 0) {
+	          this.props.addFrame({ name: '', frame: rect });
+	        }
+	        this.setState({ drawRect: { x: 0, y: 0, w: 0, h: 0 } });
 	      }
 	      this.checkMove = false;
 	    }, _temp;
@@ -23441,7 +23442,7 @@
 	var React = __webpack_require__(1);
 	var T = React.PropTypes;
 
-	class Toggle extends React.PureComponent {
+	class Toggle extends React.Component {
 	  constructor(...args) {
 	    var _temp;
 

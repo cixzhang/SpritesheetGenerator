@@ -137,13 +137,13 @@ class Display extends React.Component {
     if (this.props.activeTool === 'draw') {
       x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
       y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
-      var bounds = this.getBounds(this.checkMove, [x, y]),
-          rect = this.getRect({
-            x: this.checkMove[0],
-            y: this.checkMove[1],
-            x2: Math.min(Math.max(x, bounds.left), bounds.right),
-            y2: Math.min(Math.max(y, bounds.top), bounds.bottom)
-          });
+      var bounds = this.getBounds(this.checkMove, [x, y]);
+      var rect = this.getRect({
+        x: this.checkMove[0],
+        y: this.checkMove[1],
+        x2: Math.min(Math.max(x, bounds.left), bounds.right),
+        y2: Math.min(Math.max(y, bounds.top), bounds.bottom)
+      });
       this.setState({drawRect: rect});
     } else if (this.props.activeTool === 'pan') {
       var offset = {
@@ -157,11 +157,15 @@ class Display extends React.Component {
 
   onMouseUp = () => {
     if (this.props.activeTool === 'draw') {
-      var rect = this.state.drawRect,
-          overlap = this.checkFrame(rect);
-      if (overlap.length) this.props.selectFrame(overlap[0]);
-      else if (rect.w * rect.h > 0) this.props.addFrame({name: '', frame: rect});
-      this.setState({drawRect: this.getInitialState().drawRect});
+      var rect = this.state.drawRect;
+      var overlap = this.checkFrame(rect);
+      if (overlap.length) {
+        this.props.selectFrame(overlap[0]);
+      }
+      else if (rect.w * rect.h > 0) {
+        this.props.addFrame({name: '', frame: rect});
+      }
+      this.setState({ drawRect: { x: 0, y: 0, w: 0, h: 0 } });
     }
     this.checkMove = false;
   }
@@ -174,13 +178,13 @@ class Display extends React.Component {
 
   getBounds(origin, coords) {
     var bounds = _.reduce(this.props.frames, function (bounds, frame) {
-              var frameBounds = frame.getBounds(origin, coords);
-              bounds.top = Math.max(bounds.top, frameBounds.top);
-              bounds.bottom = Math.min(bounds.bottom, frameBounds.bottom);
-              bounds.left = Math.max(bounds.left, frameBounds.left);
-              bounds.right = Math.min(bounds.right, frameBounds.right);
-              return bounds;
-            }, {top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity});
+      var frameBounds = frame.getBounds(origin, coords);
+      bounds.top = Math.max(bounds.top, frameBounds.top);
+      bounds.bottom = Math.min(bounds.bottom, frameBounds.bottom);
+      bounds.left = Math.max(bounds.left, frameBounds.left);
+      bounds.right = Math.min(bounds.right, frameBounds.right);
+      return bounds;
+    }, {top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity});
     return bounds;
   }
 

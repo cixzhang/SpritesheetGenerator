@@ -2,7 +2,7 @@
 var React = require('react');
 var T = React.PropTypes;
 
-class Toggle extends React.PureComponent {
+class Toggle extends React.Component {
   static propTypes = {
     active: T.bool.isRequired,
     icon: T.string.isRequired,
