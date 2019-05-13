@@ -2,16 +2,14 @@
 var React = require('react');
 var T = React.PropTypes;
 
-module.exports = React.createClass({
-  displayName: 'Toggle',
-  propTypes: {
+class Toggle extends React.PureComponent {
+  static propTypes = {
     active: T.bool.isRequired,
     icon: T.string.isRequired,
     toggle: T.func.isRequired
-  },
+  }
 
-  onClick: function () { this.props.toggle(); },
-  render: function () {
+  render() {
     return (
       <button
           className={this.props.active ? 'active' : ''}
@@ -21,4 +19,8 @@ module.exports = React.createClass({
       </button>
     );
   }
-});
+
+  onClick = () => { this.props.toggle(); }
+};
+
+module.exports = Toggle;

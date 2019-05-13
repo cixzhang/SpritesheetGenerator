@@ -3,14 +3,13 @@ var _ = require('underscore');
 var React = require('react');
 var T = React.PropTypes;
 
-var SpritesheetFrame = require('./spritesheetFrame.js');
+var SpritesheetFrame = require('../spritesheetFrame.js');
 var Frames = require('./frames.jsx');
 var Files = require('./files.jsx');
 var Toggle = require('./toggle.jsx');
 
-module.exports = React.createClass({
-  displayName: 'Sidebar',
-  propTypes: {
+class Sidebar extends React.Component {
+  static propTypes = {
     toggleTool: T.func.isRequired,
     togglePanel: T.func.isRequired,
     tools: T.arrayOf(T.string).isRequired,
@@ -29,21 +28,15 @@ module.exports = React.createClass({
     output: T.string.isRequired,
     selected: T.string.isRequired,
     sprite: T.instanceOf(Image).isRequired
-  },
+  };
 
-  wrapToggleTool: function (tool) {
-    return function () { this.props.toggleTool(tool); }.bind(this);
-  },
-  wrapTogglePanel: function (panel) {
-    return function () { this.props.togglePanel(panel); }.bind(this);
-  },
-  render: function () {
+  render() {
     var tools = _.map(this.props.tools, function (tool) {
-              return <Toggle key={tool} icon={tool} toggle={this.wrapToggleTool(tool)} active={this.props.activeTool === tool} />;
-            }.bind(this)),
-        panels = _.map(this.props.panels, function (panel) {
-              return <Toggle key={panel} icon={panel} toggle={this.wrapTogglePanel(panel)} active={this.props.activePanel === panel} />;
-            }.bind(this));
+      return <Toggle key={tool} icon={tool} toggle={this.wrapToggleTool(tool)} active={this.props.activeTool === tool} />;
+    }.bind(this));
+    var panels = _.map(this.props.panels, function (panel) {
+      return <Toggle key={panel} icon={panel} toggle={this.wrapTogglePanel(panel)} active={this.props.activePanel === panel} />;
+    }.bind(this));
 
     return (
       <div className='sidebar'>
@@ -69,4 +62,13 @@ module.exports = React.createClass({
       </div>
     );
   }
-});
+
+  wrapToggleTool(tool) {
+    return function () { this.props.toggleTool(tool); }.bind(this);
+  }
+  wrapTogglePanel(panel) {
+    return function () { this.props.togglePanel(panel); }.bind(this);
+  }
+};
+
+module.exports = Sidebar;

@@ -3,9 +3,8 @@ var _ = require('underscore');
 var React = require('react');
 var T = React.PropTypes;
 
-module.exports = React.createClass({
-  displayName: 'Files',
-  propTypes: {
+class Files extends React.Component {
+  static propTypes = {
     files: T.shape({
       image: T.instanceOf(File),
       json: T.instanceOf(File)
@@ -13,10 +12,9 @@ module.exports = React.createClass({
     addFiles: T.func.isRequired,
     active: T.bool.isRequired,
     output: T.string.isRequired
-  },
+  };
 
-  onDragOver: function (e) { e.preventDefault(); },
-  render: function () {
+  render() {
     var filesHtml = <span>Drag and drop image or json files.</span>;
     var files = _.filter(_.pairs(this.props.files), function (v) { return v[1]; });
     if (files.length) {
@@ -41,4 +39,8 @@ module.exports = React.createClass({
       </div>
     );
   }
-});
+
+  onDragOver = (e) => { e.preventDefault(); }
+}
+
+module.exports = Files;

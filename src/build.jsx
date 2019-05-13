@@ -1,6 +1,6 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Generator = require('./generator.jsx');
+var App = require('./components/app.jsx');
 
-ReactDOM.render(<Generator />, document.getElementById('generator'));
+ReactDOM.render(<App />, document.getElementById('app'));

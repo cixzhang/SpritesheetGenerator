@@ -3,28 +3,21 @@ var _ = require('underscore');
 var React = require('react');
 var T = React.PropTypes;
 
-var SpritesheetFrame = require('./spritesheetFrame.js');
+var SpritesheetFrame = require('../spritesheetFrame.js');
 var Frame = require('./frame.jsx');
 
-module.exports = React.createClass({
-  displayName: 'Frames',
-  propTypes: {
+class Frames extends React.Component {
+  static propTypes = {
     active: T.bool.isRequired,
     selected: T.string.isRequired,
-    frames : T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
+    frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
     updateFrame: T.func.isRequired,
     deleteFrame: T.func.isRequired,
     selectFrame: T.func.isRequired,
     sprite: T.instanceOf(Image).isRequired
-  },
+  };
 
-  wrapUpdateFrame: function (frame) {
-    return function (data) { this.props.updateFrame(frame, data); }.bind(this);
-  },
-  wrapDeleteFrame: function (frame) {
-    return function () { this.props.deleteFrame(frame); }.bind(this);
-  },
-  render: function () {
+  render() {
     return (
       <div className={'frames' + (this.props.active ? '' : ' hidden')}>
           <header>Frames</header>
@@ -43,4 +36,13 @@ module.exports = React.createClass({
       </div>
     );
   }
-});
+
+  wrapUpdateFrame = (frame) => {
+    return function (data) { this.props.updateFrame(frame, data); }.bind(this);
+  }
+  wrapDeleteFrame = (frame) => {
+    return function () { this.props.deleteFrame(frame); }.bind(this);
+  }
+}
+
+module.exports = Frames;

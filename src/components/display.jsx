@@ -3,30 +3,66 @@ var _ = require('underscore');
 var React = require('react');
 var T = React.PropTypes;
 
-var SpritesheetFrame = require('./spritesheetFrame.js');
+var SpritesheetFrame = require('../spritesheetFrame.js');
 
-module.exports = React.createClass({
-  displayName: 'Display',
-  propTypes: {
+class Display extends React.Component {
+  static propTypes = {
     selected: T.string.isRequired,
     activeTool: T.string.isRequired,
     frames : T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
     sprite: T.instanceOf(Image).isRequired,
     selectFrame: T.func.isRequired,
     addFrame: T.func.isRequired
-  },
+  };
 
-  getInitialState: function () {
-    return {
-      grid: 16, grid_sm: 1, scale: 4,
-      drawRect: {x: 0, y: 0, w: 0, h: 0},
-      selected: null,
-      clamp: true,
-      offset: {x: 0, y: 0}
-    };
-  },
+  state = {
+    grid: 16, grid_sm: 1, scale: 4,
+    drawRect: {x: 0, y: 0, w: 0, h: 0},
+    selected: null,
+    clamp: true,
+    offset: {x: 0, y: 0}
+  };
 
-  drawGrid: function (context, size, style) {
+  componentWillMount() { window.onresize = this.renderCanvas; }
+
+  componentWillUnmount() { window.onresize = undefined; }
+
+  componentDidMount() { this.renderCanvas(); }
+
+  componentDidUpdate() { this.renderCanvas(); }
+
+  render() {
+    return (
+      <canvas ref='canvas'
+        className={this.props.activeTool}
+        onMouseDown={this.onMouseDown}
+        onMouseMove={this.onMouseMove}
+        onMouseUp={this.onMouseUp} />
+    );
+  }
+
+  renderCanvas() {
+    var canvas = this.refs.canvas;
+    var context = canvas.getContext('2d');
+
+    canvas.width = canvas.getBoundingClientRect().width;
+    canvas.height = canvas.getBoundingClientRect().height;
+
+    context.mozImageSmoothingEnabled = false;
+    context.webkitImageSmoothingEnabled = false;
+    context.msImageSmoothingEnabled = false;
+    context.imageSmoothingEnabled = false;
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    this.drawGrid(context, this.state.grid, 'rgba(94, 167, 179, 0.35)');
+    this.drawGrid(context, this.state.grid_sm, 'rgba(94, 167, 179, 0.15)');
+    this.drawSprite(context);
+    this.drawFrames(context);
+    this.drawMouse(context);
+  }
+
+  drawGrid(context, size, style) {
     context.beginPath();
     var canvas = context.canvas,
         grid = size * this.state.scale,
@@ -43,9 +79,9 @@ module.exports = React.createClass({
     }
     if (style) context.strokeStyle = style;
     context.stroke();
-  },
+  }
 
-  drawFrames: function (context) {
+  drawFrames(context) {
     context.strokeStyle = 'rgba(225, 180, 180, 1)';
     this.props.frames.forEach(function (frameData) {
       context.fillStyle = (this.props.selected === frameData.id) ?
@@ -53,9 +89,9 @@ module.exports = React.createClass({
       var rect = frameData.frame;
       this.drawRect(context, rect);
     }.bind(this));
-  },
+  }
 
-  drawSprite: function (context) {
+  drawSprite(context) {
     if (this.props.sprite.src) {
       context.drawImage(
         this.props.sprite, this.state.offset.x, this.state.offset.y,
@@ -63,17 +99,17 @@ module.exports = React.createClass({
         this.props.sprite.height * this.state.scale
       );
     }
-  },
+  }
 
-  drawMouse: function (context) {
+  drawMouse(context) {
     context.fillStyle = 'rgba(225, 225, 180, 0.2)';
     context.strokeStyle = 'rgba(225, 225, 180, 1)';
 
     var rect = this.state.drawRect;
     this.drawRect(context, rect);
-  },
+  }
 
-  drawRect: function (context, rect) {
+  drawRect(context, rect) {
     var scale = this.state.scale,
         offset = this.state.offset;
     context.fillRect(
@@ -82,9 +118,9 @@ module.exports = React.createClass({
     context.strokeRect(
       rect.x * scale + offset.x, rect.y * scale + offset.y,
       rect.w * scale, rect.h * scale);
-  },
+  }
 
-  onMouseDown: function (e) {
+  onMouseDown = (e) => {
     var x = e.clientX, y = e.clientY;
     if (this.props.activeTool === 'draw') {
       x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
@@ -93,9 +129,9 @@ module.exports = React.createClass({
       this.setState({drawRect: rect});
     }
     this.checkMove = [x, y];
-  },
+  }
 
-  onMouseMove: function (e) {
+  onMouseMove = (e) => {
     if (!this.checkMove) return;
     var x = e.clientX, y = e.clientY;
     if (this.props.activeTool === 'draw') {
@@ -117,9 +153,9 @@ module.exports = React.createClass({
       this.checkMove = [x, y]; // update reference for next mouseMove
       this.setState({offset: offset});
     }
-  },
+  }
 
-  onMouseUp: function () {
+  onMouseUp = () => {
     if (this.props.activeTool === 'draw') {
       var rect = this.state.drawRect,
           overlap = this.checkFrame(rect);
@@ -128,15 +164,15 @@ module.exports = React.createClass({
       this.setState({drawRect: this.getInitialState().drawRect});
     }
     this.checkMove = false;
-  },
+  }
 
-  checkFrame: function (rect) {
+  checkFrame(rect) {
     return _.filter(this.props.frames, function (frame) {
       return frame.isOverlap(rect.x, rect.y, rect.w, rect.h);
     });
-  },
+  }
 
-  getBounds: function (origin, coords) {
+  getBounds(origin, coords) {
     var bounds = _.reduce(this.props.frames, function (bounds, frame) {
               var frameBounds = frame.getBounds(origin, coords);
               bounds.top = Math.max(bounds.top, frameBounds.top);
@@ -146,53 +182,16 @@ module.exports = React.createClass({
               return bounds;
             }, {top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity});
     return bounds;
-  },
+  }
 
-  getRect: function (state) {
+  getRect(state) {
     return {
       x: Math.min(state.x, state.x2),
       y: Math.min(state.y, state.y2),
       w: Math.abs(state.x2 - state.x),
       h: Math.abs(state.y2 - state.y)
     };
-  },
-
-  componentWillMount: function () { window.onresize = this.renderCanvas; },
-
-  componentWillUnmount: function () { window.onresize = undefined; },
-
-  componentDidMount: function () { this.renderCanvas(); },
-
-  componentDidUpdate: function () { this.renderCanvas(); },
-
-  renderCanvas: function () {
-    var canvas = this.refs.canvas;
-    var context = canvas.getContext('2d');
-
-    canvas.width = canvas.getBoundingClientRect().width;
-    canvas.height = canvas.getBoundingClientRect().height;
-
-    context.mozImageSmoothingEnabled = false;
-    context.webkitImageSmoothingEnabled = false;
-    context.msImageSmoothingEnabled = false;
-    context.imageSmoothingEnabled = false;
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    this.drawGrid(context, this.state.grid, 'rgba(94, 167, 179, 0.35)');
-    this.drawGrid(context, this.state.grid_sm, 'rgba(94, 167, 179, 0.15)');
-    this.drawSprite(context);
-    this.drawFrames(context);
-    this.drawMouse(context);
-  },
-
-  render: function () {
-    return (
-      <canvas ref='canvas'
-          className={this.props.activeTool}
-          onMouseDown={this.onMouseDown}
-          onMouseMove={this.onMouseMove}
-          onMouseUp={this.onMouseUp} />
-    );
   }
-});
+}
+
+module.exports = Display;

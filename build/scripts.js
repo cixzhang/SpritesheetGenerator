@@ -47,9 +47,9 @@
 	
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(33);
-	var Generator = __webpack_require__(172);
+	var App = __webpack_require__(172);
 
-	ReactDOM.render(React.createElement(Generator, null), document.getElementById('generator'));
+	ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
 
 /***/ },
 /* 1 */
@@ -21095,17 +21095,11 @@
 	var Display = __webpack_require__(176);
 	var Sidebar = __webpack_require__(177);
 
-	module.exports = React.createClass({
-	  displayName: 'Generator',
+	class App extends React.Component {
+	  constructor(...args) {
+	    var _temp;
 
-	  readers: {
-	    json: new FileReader(),
-	    image: new FileReader()
-	  },
-
-	  getInitialState: function () {
-	    return {
-	      // files and data
+	    return _temp = super(...args), this.state = {
 	      files: {
 	        image: null,
 	        json: null
@@ -21123,73 +21117,57 @@
 
 	      panels: ['details', 'files'],
 	      activePanel: ''
-	    };
-	  },
+	    }, this.readers = {
+	      json: new FileReader(),
+	      image: new FileReader()
+	    }, this.onReadImage = e => {
+	      var image = new Image();
+	      image.src = e.target.result;
+	      this.setState({ sprite: image });
+	    }, this.onReadJSON = e => {
+	      this.setState({ spritesheet: this.state.spritesheet.load(e.target.result) });
+	    }, this.onDragOver = () => {
+	      this.setState({ activePanel: 'files' });
+	    }, this.onDrop = e => {
+	      e.stopPropagation();
+	      e.preventDefault();
+	      this.addFiles(e.dataTransfer.files);
+	    }, this.addFiles = files => {
+	      _.each(files, function (file) {
+	        if (file.type === 'image/png') {
+	          this.readers.image.readAsDataURL(file);
+	          this.setState({
+	            spritesheet: this.state.spritesheet.editMeta('image', file.name),
+	            files: _.extend(this.state.files, { image: file })
+	          });
+	        }
+	        if (file.name.substr(-5) === '.json') {
+	          this.readers.json.readAsText(file);
+	          this.setState({ files: _.extend(this.state.files, { json: file }) });
+	        }
+	      }.bind(this));
+	    }, this.addFrame = frame => {
+	      this.setState({ spritesheet: this.state.spritesheet.addFrames(frame) });
+	    }, this.updateFrame = (frame, data) => {
+	      frame.update(data);
+	      this.setState({ spritesheet: this.state.spritesheet.updateFrames() });
+	    }, this.deleteFrame = frame => {
+	      this.setState({ spritesheet: this.state.spritesheet.deleteFrames(frame) });
+	    }, this.selectFrame = frame => {
+	      this.setState({ selected: frame.id });
+	    }, this.toggleTool = tool => {
+	      this.setState({ activeTool: tool });
+	    }, this.togglePanel = panel => {
+	      this.setState({ activePanel: this.state.activePanel === panel ? null : panel });
+	    }, _temp;
+	  }
 
-	  // Files
-	  addFiles: function (files) {
-	    _.each(files, function (file) {
-	      if (file.type === 'image/png') {
-	        this.readers.image.readAsDataURL(file);
-	        this.setState({
-	          spritesheet: this.state.spritesheet.editMeta('image', file.name),
-	          files: _.extend(this.state.files, { image: file })
-	        });
-	      }
-	      if (file.name.substr(-5) === '.json') {
-	        this.readers.json.readAsText(file);
-	        this.setState({ files: _.extend(this.state.files, { json: file }) });
-	      }
-	    }.bind(this));
-	  },
-
-	  // Frames
-	  addFrame: function (frame) {
-	    this.setState({ spritesheet: this.state.spritesheet.addFrames(frame) });
-	  },
-	  updateFrame: function (frame, data) {
-	    frame.update(data);
-	    this.setState({ spritesheet: this.state.spritesheet.updateFrames() });
-	  },
-	  deleteFrame: function (frame) {
-	    this.setState({ spritesheet: this.state.spritesheet.deleteFrames(frame) });
-	  },
-	  selectFrame: function (frame) {
-	    this.setState({ selected: frame.id });
-	  },
-
-	  // Toolbar
-	  toggleTool: function (tool) {
-	    this.setState({ activeTool: tool });
-	  },
-	  togglePanel: function (panel) {
-	    this.setState({ activePanel: this.state.activePanel === panel ? null : panel });
-	  },
-
-	  // Events
-	  onReadImage: function (e) {
-	    var image = new Image();
-	    image.src = e.target.result;
-	    this.setState({ sprite: image });
-	  },
-	  onReadJSON: function (e) {
-	    this.setState({ spritesheet: this.state.spritesheet.load(e.target.result) });
-	  },
-	  onDragOver: function () {
-	    this.setState({ activePanel: 'files' });
-	  },
-	  onDrop: function (e) {
-	    e.stopPropagation();
-	    e.preventDefault();
-	    this.addFiles(e.dataTransfer.files);
-	  },
-
-	  // Lifecycle
-	  componentWillMount: function () {
+	  componentWillMount() {
 	    this.readers.json.onload = this.onReadJSON;
 	    this.readers.image.onload = this.onReadImage;
-	  },
-	  render: function () {
+	  }
+
+	  render() {
 	    return React.createElement(
 	      'div',
 	      { className: 'spritesheet',
@@ -21227,7 +21205,20 @@
 	        selected: this.state.selected })
 	    );
 	  }
-	});
+
+	  // Events
+
+
+	  // Files
+
+
+	  // Frames
+
+
+	  // Toolbar
+	}
+
+	module.exports = App;
 
 /***/ },
 /* 173 */
@@ -22933,167 +22924,85 @@
 
 	var SpritesheetFrame = __webpack_require__(175);
 
-	module.exports = React.createClass({
-	  displayName: 'Display',
-	  propTypes: {
-	    selected: T.string.isRequired,
-	    activeTool: T.string.isRequired,
-	    frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
-	    sprite: T.instanceOf(Image).isRequired,
-	    selectFrame: T.func.isRequired,
-	    addFrame: T.func.isRequired
-	  },
+	class Display extends React.Component {
+	  constructor(...args) {
+	    var _temp;
 
-	  getInitialState: function () {
-	    return {
+	    return _temp = super(...args), this.state = {
 	      grid: 16, grid_sm: 1, scale: 4,
 	      drawRect: { x: 0, y: 0, w: 0, h: 0 },
 	      selected: null,
 	      clamp: true,
 	      offset: { x: 0, y: 0 }
-	    };
-	  },
+	    }, this.onMouseDown = e => {
+	      var x = e.clientX,
+	          y = e.clientY;
+	      if (this.props.activeTool === 'draw') {
+	        x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
+	        y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
+	        var rect = { x: x, y: y, w: 0, h: 0 };
+	        this.setState({ drawRect: rect });
+	      }
+	      this.checkMove = [x, y];
+	    }, this.onMouseMove = e => {
+	      if (!this.checkMove) return;
+	      var x = e.clientX,
+	          y = e.clientY;
+	      if (this.props.activeTool === 'draw') {
+	        x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
+	        y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
+	        var bounds = this.getBounds(this.checkMove, [x, y]),
+	            rect = this.getRect({
+	          x: this.checkMove[0],
+	          y: this.checkMove[1],
+	          x2: Math.min(Math.max(x, bounds.left), bounds.right),
+	          y2: Math.min(Math.max(y, bounds.top), bounds.bottom)
+	        });
+	        this.setState({ drawRect: rect });
+	      } else if (this.props.activeTool === 'pan') {
+	        var offset = {
+	          x: x - this.checkMove[0] + this.state.offset.x,
+	          y: y - this.checkMove[1] + this.state.offset.y
+	        };
+	        this.checkMove = [x, y]; // update reference for next mouseMove
+	        this.setState({ offset: offset });
+	      }
+	    }, this.onMouseUp = () => {
+	      if (this.props.activeTool === 'draw') {
+	        var rect = this.state.drawRect,
+	            overlap = this.checkFrame(rect);
+	        if (overlap.length) this.props.selectFrame(overlap[0]);else if (rect.w * rect.h > 0) this.props.addFrame({ name: '', frame: rect });
+	        this.setState({ drawRect: this.getInitialState().drawRect });
+	      }
+	      this.checkMove = false;
+	    }, _temp;
+	  }
 
-	  drawGrid: function (context, size, style) {
-	    context.beginPath();
-	    var canvas = context.canvas,
-	        grid = size * this.state.scale,
-	        offset = { x: this.state.offset.x % grid, y: this.state.offset.y % grid },
-	        x = Math.floor(canvas.width / grid),
-	        y = Math.floor(canvas.height / grid);
-	    for (var i = -1; i < x + 1; i++) {
-	      context.moveTo(i * grid - 0.5 + offset.x, 0);
-	      context.lineTo(i * grid - 0.5 + offset.x, canvas.height);
-	    }
-	    for (var j = -1; j < y + 1; j++) {
-	      context.moveTo(0, j * grid + 0.5 + offset.y);
-	      context.lineTo(canvas.width, j * grid + 0.5 + offset.y);
-	    }
-	    if (style) context.strokeStyle = style;
-	    context.stroke();
-	  },
-
-	  drawFrames: function (context) {
-	    context.strokeStyle = 'rgba(225, 180, 180, 1)';
-	    this.props.frames.forEach(function (frameData) {
-	      context.fillStyle = this.props.selected === frameData.id ? 'rgba(225, 180, 180, 0.4)' : 'rgba(225, 180, 180, 0.2)';
-	      var rect = frameData.frame;
-	      this.drawRect(context, rect);
-	    }.bind(this));
-	  },
-
-	  drawSprite: function (context) {
-	    if (this.props.sprite.src) {
-	      context.drawImage(this.props.sprite, this.state.offset.x, this.state.offset.y, this.props.sprite.width * this.state.scale, this.props.sprite.height * this.state.scale);
-	    }
-	  },
-
-	  drawMouse: function (context) {
-	    context.fillStyle = 'rgba(225, 225, 180, 0.2)';
-	    context.strokeStyle = 'rgba(225, 225, 180, 1)';
-
-	    var rect = this.state.drawRect;
-	    this.drawRect(context, rect);
-	  },
-
-	  drawRect: function (context, rect) {
-	    var scale = this.state.scale,
-	        offset = this.state.offset;
-	    context.fillRect(rect.x * scale + offset.x, rect.y * scale + offset.y, rect.w * scale, rect.h * scale);
-	    context.strokeRect(rect.x * scale + offset.x, rect.y * scale + offset.y, rect.w * scale, rect.h * scale);
-	  },
-
-	  onMouseDown: function (e) {
-	    var x = e.clientX,
-	        y = e.clientY;
-	    if (this.props.activeTool === 'draw') {
-	      x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
-	      y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
-	      var rect = { x: x, y: y, w: 0, h: 0 };
-	      this.setState({ drawRect: rect });
-	    }
-	    this.checkMove = [x, y];
-	  },
-
-	  onMouseMove: function (e) {
-	    if (!this.checkMove) return;
-	    var x = e.clientX,
-	        y = e.clientY;
-	    if (this.props.activeTool === 'draw') {
-	      x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
-	      y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
-	      var bounds = this.getBounds(this.checkMove, [x, y]),
-	          rect = this.getRect({
-	        x: this.checkMove[0],
-	        y: this.checkMove[1],
-	        x2: Math.min(Math.max(x, bounds.left), bounds.right),
-	        y2: Math.min(Math.max(y, bounds.top), bounds.bottom)
-	      });
-	      this.setState({ drawRect: rect });
-	    } else if (this.props.activeTool === 'pan') {
-	      var offset = {
-	        x: x - this.checkMove[0] + this.state.offset.x,
-	        y: y - this.checkMove[1] + this.state.offset.y
-	      };
-	      this.checkMove = [x, y]; // update reference for next mouseMove
-	      this.setState({ offset: offset });
-	    }
-	  },
-
-	  onMouseUp: function () {
-	    if (this.props.activeTool === 'draw') {
-	      var rect = this.state.drawRect,
-	          overlap = this.checkFrame(rect);
-	      if (overlap.length) this.props.selectFrame(overlap[0]);else if (rect.w * rect.h > 0) this.props.addFrame({ name: '', frame: rect });
-	      this.setState({ drawRect: this.getInitialState().drawRect });
-	    }
-	    this.checkMove = false;
-	  },
-
-	  checkFrame: function (rect) {
-	    return _.filter(this.props.frames, function (frame) {
-	      return frame.isOverlap(rect.x, rect.y, rect.w, rect.h);
-	    });
-	  },
-
-	  getBounds: function (origin, coords) {
-	    var bounds = _.reduce(this.props.frames, function (bounds, frame) {
-	      var frameBounds = frame.getBounds(origin, coords);
-	      bounds.top = Math.max(bounds.top, frameBounds.top);
-	      bounds.bottom = Math.min(bounds.bottom, frameBounds.bottom);
-	      bounds.left = Math.max(bounds.left, frameBounds.left);
-	      bounds.right = Math.min(bounds.right, frameBounds.right);
-	      return bounds;
-	    }, { top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity });
-	    return bounds;
-	  },
-
-	  getRect: function (state) {
-	    return {
-	      x: Math.min(state.x, state.x2),
-	      y: Math.min(state.y, state.y2),
-	      w: Math.abs(state.x2 - state.x),
-	      h: Math.abs(state.y2 - state.y)
-	    };
-	  },
-
-	  componentWillMount: function () {
+	  componentWillMount() {
 	    window.onresize = this.renderCanvas;
-	  },
+	  }
 
-	  componentWillUnmount: function () {
+	  componentWillUnmount() {
 	    window.onresize = undefined;
-	  },
+	  }
 
-	  componentDidMount: function () {
+	  componentDidMount() {
 	    this.renderCanvas();
-	  },
+	  }
 
-	  componentDidUpdate: function () {
+	  componentDidUpdate() {
 	    this.renderCanvas();
-	  },
+	  }
 
-	  renderCanvas: function () {
+	  render() {
+	    return React.createElement('canvas', { ref: 'canvas',
+	      className: this.props.activeTool,
+	      onMouseDown: this.onMouseDown,
+	      onMouseMove: this.onMouseMove,
+	      onMouseUp: this.onMouseUp });
+	  }
+
+	  renderCanvas() {
 	    var canvas = this.refs.canvas;
 	    var context = canvas.getContext('2d');
 
@@ -23112,16 +23021,94 @@
 	    this.drawSprite(context);
 	    this.drawFrames(context);
 	    this.drawMouse(context);
-	  },
-
-	  render: function () {
-	    return React.createElement('canvas', { ref: 'canvas',
-	      className: this.props.activeTool,
-	      onMouseDown: this.onMouseDown,
-	      onMouseMove: this.onMouseMove,
-	      onMouseUp: this.onMouseUp });
 	  }
-	});
+
+	  drawGrid(context, size, style) {
+	    context.beginPath();
+	    var canvas = context.canvas,
+	        grid = size * this.state.scale,
+	        offset = { x: this.state.offset.x % grid, y: this.state.offset.y % grid },
+	        x = Math.floor(canvas.width / grid),
+	        y = Math.floor(canvas.height / grid);
+	    for (var i = -1; i < x + 1; i++) {
+	      context.moveTo(i * grid - 0.5 + offset.x, 0);
+	      context.lineTo(i * grid - 0.5 + offset.x, canvas.height);
+	    }
+	    for (var j = -1; j < y + 1; j++) {
+	      context.moveTo(0, j * grid + 0.5 + offset.y);
+	      context.lineTo(canvas.width, j * grid + 0.5 + offset.y);
+	    }
+	    if (style) context.strokeStyle = style;
+	    context.stroke();
+	  }
+
+	  drawFrames(context) {
+	    context.strokeStyle = 'rgba(225, 180, 180, 1)';
+	    this.props.frames.forEach(function (frameData) {
+	      context.fillStyle = this.props.selected === frameData.id ? 'rgba(225, 180, 180, 0.4)' : 'rgba(225, 180, 180, 0.2)';
+	      var rect = frameData.frame;
+	      this.drawRect(context, rect);
+	    }.bind(this));
+	  }
+
+	  drawSprite(context) {
+	    if (this.props.sprite.src) {
+	      context.drawImage(this.props.sprite, this.state.offset.x, this.state.offset.y, this.props.sprite.width * this.state.scale, this.props.sprite.height * this.state.scale);
+	    }
+	  }
+
+	  drawMouse(context) {
+	    context.fillStyle = 'rgba(225, 225, 180, 0.2)';
+	    context.strokeStyle = 'rgba(225, 225, 180, 1)';
+
+	    var rect = this.state.drawRect;
+	    this.drawRect(context, rect);
+	  }
+
+	  drawRect(context, rect) {
+	    var scale = this.state.scale,
+	        offset = this.state.offset;
+	    context.fillRect(rect.x * scale + offset.x, rect.y * scale + offset.y, rect.w * scale, rect.h * scale);
+	    context.strokeRect(rect.x * scale + offset.x, rect.y * scale + offset.y, rect.w * scale, rect.h * scale);
+	  }
+
+	  checkFrame(rect) {
+	    return _.filter(this.props.frames, function (frame) {
+	      return frame.isOverlap(rect.x, rect.y, rect.w, rect.h);
+	    });
+	  }
+
+	  getBounds(origin, coords) {
+	    var bounds = _.reduce(this.props.frames, function (bounds, frame) {
+	      var frameBounds = frame.getBounds(origin, coords);
+	      bounds.top = Math.max(bounds.top, frameBounds.top);
+	      bounds.bottom = Math.min(bounds.bottom, frameBounds.bottom);
+	      bounds.left = Math.max(bounds.left, frameBounds.left);
+	      bounds.right = Math.min(bounds.right, frameBounds.right);
+	      return bounds;
+	    }, { top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity });
+	    return bounds;
+	  }
+
+	  getRect(state) {
+	    return {
+	      x: Math.min(state.x, state.x2),
+	      y: Math.min(state.y, state.y2),
+	      w: Math.abs(state.x2 - state.x),
+	      h: Math.abs(state.y2 - state.y)
+	    };
+	  }
+	}
+
+	Display.propTypes = {
+	  selected: T.string.isRequired,
+	  activeTool: T.string.isRequired,
+	  frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
+	  sprite: T.instanceOf(Image).isRequired,
+	  selectFrame: T.func.isRequired,
+	  addFrame: T.func.isRequired
+	};
+	module.exports = Display;
 
 /***/ },
 /* 177 */
@@ -23137,44 +23124,13 @@
 	var Files = __webpack_require__(180);
 	var Toggle = __webpack_require__(181);
 
-	module.exports = React.createClass({
-	  displayName: 'Sidebar',
-	  propTypes: {
-	    toggleTool: T.func.isRequired,
-	    togglePanel: T.func.isRequired,
-	    tools: T.arrayOf(T.string).isRequired,
-	    panels: T.arrayOf(T.string).isRequired,
-	    activeTool: T.string.isRequired,
-	    activePanel: T.string,
-	    frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
-	    selectFrame: T.func.isRequired,
-	    updateFrame: T.func.isRequired,
-	    deleteFrame: T.func.isRequired,
-	    files: T.shape({
-	      image: T.instanceOf(File),
-	      json: T.instanceOf(File)
-	    }).isRequired,
-	    addFiles: T.func.isRequired,
-	    output: T.string.isRequired,
-	    selected: T.string.isRequired,
-	    sprite: T.instanceOf(Image).isRequired
-	  },
+	class Sidebar extends React.Component {
 
-	  wrapToggleTool: function (tool) {
-	    return function () {
-	      this.props.toggleTool(tool);
-	    }.bind(this);
-	  },
-	  wrapTogglePanel: function (panel) {
-	    return function () {
-	      this.props.togglePanel(panel);
-	    }.bind(this);
-	  },
-	  render: function () {
+	  render() {
 	    var tools = _.map(this.props.tools, function (tool) {
 	      return React.createElement(Toggle, { key: tool, icon: tool, toggle: this.wrapToggleTool(tool), active: this.props.activeTool === tool });
-	    }.bind(this)),
-	        panels = _.map(this.props.panels, function (panel) {
+	    }.bind(this));
+	    var panels = _.map(this.props.panels, function (panel) {
 	      return React.createElement(Toggle, { key: panel, icon: panel, toggle: this.wrapTogglePanel(panel), active: this.props.activePanel === panel });
 	    }.bind(this));
 
@@ -23214,7 +23170,40 @@
 	      )
 	    );
 	  }
-	});
+
+	  wrapToggleTool(tool) {
+	    return function () {
+	      this.props.toggleTool(tool);
+	    }.bind(this);
+	  }
+	  wrapTogglePanel(panel) {
+	    return function () {
+	      this.props.togglePanel(panel);
+	    }.bind(this);
+	  }
+	}Sidebar.propTypes = {
+	  toggleTool: T.func.isRequired,
+	  togglePanel: T.func.isRequired,
+	  tools: T.arrayOf(T.string).isRequired,
+	  panels: T.arrayOf(T.string).isRequired,
+	  activeTool: T.string.isRequired,
+	  activePanel: T.string,
+	  frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
+	  selectFrame: T.func.isRequired,
+	  updateFrame: T.func.isRequired,
+	  deleteFrame: T.func.isRequired,
+	  files: T.shape({
+	    image: T.instanceOf(File),
+	    json: T.instanceOf(File)
+	  }).isRequired,
+	  addFiles: T.func.isRequired,
+	  output: T.string.isRequired,
+	  selected: T.string.isRequired,
+	  sprite: T.instanceOf(Image).isRequired
+	};
+	;
+
+	module.exports = Sidebar;
 
 /***/ },
 /* 178 */
@@ -23228,29 +23217,22 @@
 	var SpritesheetFrame = __webpack_require__(175);
 	var Frame = __webpack_require__(179);
 
-	module.exports = React.createClass({
-	  displayName: 'Frames',
-	  propTypes: {
-	    active: T.bool.isRequired,
-	    selected: T.string.isRequired,
-	    frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
-	    updateFrame: T.func.isRequired,
-	    deleteFrame: T.func.isRequired,
-	    selectFrame: T.func.isRequired,
-	    sprite: T.instanceOf(Image).isRequired
-	  },
+	class Frames extends React.Component {
+	  constructor(...args) {
+	    var _temp;
 
-	  wrapUpdateFrame: function (frame) {
-	    return function (data) {
-	      this.props.updateFrame(frame, data);
-	    }.bind(this);
-	  },
-	  wrapDeleteFrame: function (frame) {
-	    return function () {
-	      this.props.deleteFrame(frame);
-	    }.bind(this);
-	  },
-	  render: function () {
+	    return _temp = super(...args), this.wrapUpdateFrame = frame => {
+	      return function (data) {
+	        this.props.updateFrame(frame, data);
+	      }.bind(this);
+	    }, this.wrapDeleteFrame = frame => {
+	      return function () {
+	        this.props.deleteFrame(frame);
+	      }.bind(this);
+	    }, _temp;
+	  }
+
+	  render() {
 	    return React.createElement(
 	      'div',
 	      { className: 'frames' + (this.props.active ? '' : ' hidden') },
@@ -23275,7 +23257,19 @@
 	      )
 	    );
 	  }
-	});
+
+	}
+
+	Frames.propTypes = {
+	  active: T.bool.isRequired,
+	  selected: T.string.isRequired,
+	  frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
+	  updateFrame: T.func.isRequired,
+	  deleteFrame: T.func.isRequired,
+	  selectFrame: T.func.isRequired,
+	  sprite: T.instanceOf(Image).isRequired
+	};
+	module.exports = Frames;
 
 /***/ },
 /* 179 */
@@ -23287,49 +23281,27 @@
 
 	var SpritesheetFrame = __webpack_require__(175);
 
-	module.exports = React.createClass({
-	  displayName: 'Frame',
-	  propTypes: {
-	    frameData: T.instanceOf(SpritesheetFrame).isRequired,
-	    updateFrame: T.func.isRequired,
-	    deleteFrame: T.func.isRequired,
-	    selectFrame: T.func.isRequired,
-	    isSelected: T.bool.isRequired,
-	    sprite: T.instanceOf(Image).isRequired
-	  },
+	class Frame extends React.Component {
+	  constructor(...args) {
+	    var _temp;
 
-	  componentDidMount: function () {
-	    this.renderCanvas();
-	  },
-	  componentDidUpdate: function () {
-	    this.renderCanvas();
-	  },
-	  onChange: function (e) {
-	    this.props.updateFrame({ name: e.target.value });
-	  },
-	  onSelectFrame: function () {
-	    this.props.selectFrame(this.props.frameData);
-	  },
-	  onDeleteFrame: function () {
-	    this.props.deleteFrame();
-	  },
-	  renderCanvas: function () {
-	    var AREA = 3600;
-	    var canvas = this.refs.canvas;
-	    var context = canvas.getContext('2d');
-	    var frame = this.props.frameData.frame;
-	    var width = Math.floor(Math.sqrt(AREA * frame.w / frame.h));
-	    var height = width * frame.h / frame.w;
+	    return _temp = super(...args), this.onChange = e => {
+	      this.props.updateFrame({ name: e.target.value });
+	    }, this.onSelectFrame = () => {
+	      this.props.selectFrame(this.props.frameData);
+	    }, this.onDeleteFrame = () => {
+	      this.props.deleteFrame();
+	    }, _temp;
+	  }
 
-	    canvas.width = width;
-	    canvas.height = height;
-	    context.mozImageSmoothingEnabled = false;
-	    context.webkitImageSmoothingEnabled = false;
-	    context.msImageSmoothingEnabled = false;
-	    context.imageSmoothingEnabled = false;
-	    context.drawImage(this.props.sprite, frame.x, frame.y, frame.w, frame.h, 0, 0, width, height);
-	  },
-	  render: function () {
+	  componentDidMount() {
+	    this.renderCanvas();
+	  }
+	  componentDidUpdate() {
+	    this.renderCanvas();
+	  }
+
+	  render() {
 	    return React.createElement(
 	      'li',
 	      { onClick: this.onSelectFrame,
@@ -23346,7 +23318,35 @@
 	        onFocus: this.onSelectFrame })
 	    );
 	  }
-	});
+
+	  renderCanvas() {
+	    var AREA = 3600;
+	    var canvas = this.refs.canvas;
+	    var context = canvas.getContext('2d');
+	    var frame = this.props.frameData.frame;
+	    var width = Math.floor(Math.sqrt(AREA * frame.w / frame.h));
+	    var height = width * frame.h / frame.w;
+
+	    canvas.width = width;
+	    canvas.height = height;
+	    context.mozImageSmoothingEnabled = false;
+	    context.webkitImageSmoothingEnabled = false;
+	    context.msImageSmoothingEnabled = false;
+	    context.imageSmoothingEnabled = false;
+	    context.drawImage(this.props.sprite, frame.x, frame.y, frame.w, frame.h, 0, 0, width, height);
+	  }
+
+	}
+
+	Frame.propTypes = {
+	  frameData: T.instanceOf(SpritesheetFrame).isRequired,
+	  updateFrame: T.func.isRequired,
+	  deleteFrame: T.func.isRequired,
+	  selectFrame: T.func.isRequired,
+	  isSelected: T.bool.isRequired,
+	  sprite: T.instanceOf(Image).isRequired
+	};
+	module.exports = Frame;
 
 /***/ },
 /* 180 */
@@ -23357,22 +23357,16 @@
 	var React = __webpack_require__(1);
 	var T = React.PropTypes;
 
-	module.exports = React.createClass({
-	  displayName: 'Files',
-	  propTypes: {
-	    files: T.shape({
-	      image: T.instanceOf(File),
-	      json: T.instanceOf(File)
-	    }).isRequired,
-	    addFiles: T.func.isRequired,
-	    active: T.bool.isRequired,
-	    output: T.string.isRequired
-	  },
+	class Files extends React.Component {
+	  constructor(...args) {
+	    var _temp;
 
-	  onDragOver: function (e) {
-	    e.preventDefault();
-	  },
-	  render: function () {
+	    return _temp = super(...args), this.onDragOver = e => {
+	      e.preventDefault();
+	    }, _temp;
+	  }
+
+	  render() {
 	    var filesHtml = React.createElement(
 	      'span',
 	      null,
@@ -23425,7 +23419,19 @@
 	      )
 	    );
 	  }
-	});
+
+	}
+
+	Files.propTypes = {
+	  files: T.shape({
+	    image: T.instanceOf(File),
+	    json: T.instanceOf(File)
+	  }).isRequired,
+	  addFiles: T.func.isRequired,
+	  active: T.bool.isRequired,
+	  output: T.string.isRequired
+	};
+	module.exports = Files;
 
 /***/ },
 /* 181 */
@@ -23435,18 +23441,16 @@
 	var React = __webpack_require__(1);
 	var T = React.PropTypes;
 
-	module.exports = React.createClass({
-	  displayName: 'Toggle',
-	  propTypes: {
-	    active: T.bool.isRequired,
-	    icon: T.string.isRequired,
-	    toggle: T.func.isRequired
-	  },
+	class Toggle extends React.PureComponent {
+	  constructor(...args) {
+	    var _temp;
 
-	  onClick: function () {
-	    this.props.toggle();
-	  },
-	  render: function () {
+	    return _temp = super(...args), this.onClick = () => {
+	      this.props.toggle();
+	    }, _temp;
+	  }
+
+	  render() {
 	    return React.createElement(
 	      'button',
 	      {
@@ -23456,7 +23460,15 @@
 	      React.createElement('i', { className: 'icon-' + this.props.icon })
 	    );
 	  }
-	});
+
+	}Toggle.propTypes = {
+	  active: T.bool.isRequired,
+	  icon: T.string.isRequired,
+	  toggle: T.func.isRequired
+	};
+	;
+
+	module.exports = Toggle;
 
 /***/ }
 /******/ ]);
