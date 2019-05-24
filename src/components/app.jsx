@@ -1,25 +1,17 @@
 
-var _ = require('underscore');
-var React = require('react');
-var Spritesheet = require('../spritesheet.js');
+const React = require('react');
 
-var Display = require('./display.jsx');
-var Sidebar = require('./sidebar.jsx');
+const Display = require('./display.jsx');
+const Sidebar = require('./sidebar.jsx');
+const Frames = require('./frames.jsx');
+const Files = require('./files.jsx');
+const FileDropTarget = require('./FileDropTarget.jsx');
+const Toggle = require('./toggle.jsx');
 
-const {allTools, allPanels, panels} = require('constants');
+const {allTools, allPanels, panels} = require('../constants');
 const Store = require('../store');
 
 class App extends React.Component {
-  readers = {
-    json: new FileReader,
-    image: new FileReader
-  };
-
-  componentWillMount() {
-    this.readers.json.onload = this.onReadJSON;
-    this.readers.image.onload = this.onReadImage;
-  }
-
   render() {
     const store = this.props.store;
     const files = store.get('files');
@@ -30,90 +22,74 @@ class App extends React.Component {
     const activePanel = store.get('activePanel');
 
     return (
-      <div className='spritesheet'
-          onDrop={this.onDrop}
-          onDragOver={this.onDragOver} >
+      <FileDropTarget className='spritesheet'>
         <Display
-            sprite={sprite}
-            frames={spritesheet.frames}
-            addFrame={this.addFrame}
-            selectFrame={this.selectFrame}
-            selected={selected}
-            activeTool={activeTool} />
+          sprite={sprite}
+          frames={spritesheet.frames}
+          addFrame={this.addFrame}
+          selectFrame={this.selectFrame}
+          selected={selected}
+          activeTool={activeTool}
+        />
         <Sidebar
-            // tools
-            tools={allTools}
-            activeTool={activeTool}
-            toggleTool={this.toggleTool}
-
-            // panels
-            panels={allPanels}
-            activePanel={activePanel}
-            togglePanel={this.togglePanel}
-
-            // files panel
-            files={files}
-            addFiles={this.onDrop}
-            output={JSON.stringify(spritesheet, null, 2)}
-
-            // frames panel
+          tools={
+            allTools.map((tool) => (
+              <Toggle
+                key={tool}
+                icon={tool}
+                toggle={() => this.toggleTool(tool)}
+                active={activeTool === tool}
+              />
+            ))
+          }
+          panels={
+            allPanels.map((panel) => (
+              <Toggle
+                key={panel}
+                icon={panel}
+                toggle={() => this.togglePanel(panel)}
+                active={activePanel === panel}
+              />
+            ))
+          }
+          activePanel={activePanel}
+        >
+          <Frames
+            active={activePanel === panels.DETAILS}
             sprite={sprite}
             frames={spritesheet.frames}
-            deleteFrame={this.deleteFrame}
             updateFrame={this.updateFrame}
             selectFrame={this.selectFrame}
-            selected={selected} />
-      </div>
+            deleteFrame={this.deleteFrame}
+            selected={selected}
+          />
+          <Files
+            active={activePanel === panels.FILES}
+            files={files}
+            addFiles={this.addFiles}
+            output={JSON.stringify(spritesheet, null, 2)}
+          />
+        </Sidebar>
+      </FileDropTarget>
     );
-  }
-
-  // Events
-  onReadImage = (e) => {
-    var image = new Image;
-    image.src = e.target.result;
-    this.props.store.set('sprite')(image);
-  }
-  onReadJSON = (e) => {
-    this.props.store.set('spritesheet')(this.state.spritesheet.load(e.target.result));
-  }
-  onDragOver = () => {
-    this.props.store.set('activePanel', panels.FILES);
-  }
-  onDrop = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    this.addFiles(e.dataTransfer.files);
-  }
-
-  // Files
-  addFiles = (files) => {
-    const store = this.props.store;
-    _.each(files, function (file) {
-      if (file.type === 'image/png') {
-        this.readers.image.readAsDataURL(file);
-        store.set('spritesheet')(this.state.spritesheet.editMeta('image', file.name));
-        store.set('files')({...store.get('files'), image: file});
-      }
-      if (file.name.substr(-5) === '.json') {
-        this.readers.json.readAsText(file);
-        store.set('files')({...store.get('files'), json:file});
-      }
-    }.bind(this));
   }
 
   // Frames
   addFrame = (frame) => {
     const store = this.props.store;
-    store.set('spritesheet')(this.state.spritesheet.addFrames(frame));
+    const spritesheet = store.get('spritesheet');
+    store.set('spritesheet')(spritesheet.addFrames(frame));
   }
   updateFrame = (frame, data) => {
     frame.update(data);
     const store = this.props.store;
-    store.set('spritesheet')(this.state.spritesheet.updateFrames());
+    const spritesheet = store.get('spritesheet');
+    store.set('spritesheet')(spritesheet.updateFrames());
   }
   deleteFrame = (frame) => {
     const store = this.props.store;
-    store.set('spritesheet')(this.state.spritesheet.deleteFrames(frame));
+    const spritesheet = store.get('spritesheet');
+    store.set('spritesheet')(spritesheet.deleteFrames(frame));
   }
   selectFrame = (frame) => {
     const store = this.props.store;
@@ -127,7 +103,8 @@ class App extends React.Component {
   }
   togglePanel = (panel) => {
     const store = this.props.store;
-    store.set('activePanel')(this.state.activePanel === panel ? null : panel);
+    const activePanel = store.get('activePanel');
+    store.set('activePanel')(activePanel === panel ? null : panel);
   }
 }
 

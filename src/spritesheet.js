@@ -1,24 +1,27 @@
 var _ = require('underscore');
 var SpritesheetFrame = require('./spritesheetFrame.js');
 
-class Spritesheet {
-  constructor(data = {}) {
-    this.frames = data.frames || [];
-    this.meta = data.meta || {};
+const defaultData = {
+  meta: {},
+  frames: []
+};
 
+class Spritesheet {
+  constructor(data = defaultData) {
+    this.reset();
+    this.load(data);
+    return this;
+  }
+
+  reset() {
+    this.frames = [];
+    this.meta = {};
     this._framesById = {};
     return this;
   }
 
-  load(json) {
-    /* eslint no-console: [0] */
-    var data;
-    try { data = JSON.parse(json); }
-    catch (e) {
-      console.warn('Parsing failed with ' + e);
-      return;
-    }
-
+  load(data = defaultData) {
+    this.reset();
     if (data.meta) this.meta = data.meta;
     if (!data.frames) data.frames = [];
     this.addFrames(data.frames);

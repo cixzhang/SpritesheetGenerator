@@ -1,7 +1,7 @@
 
 var _ = require('underscore');
 var React = require('react');
-var T = React.PropTypes;
+var T = require('prop-types');
 
 var SpritesheetFrame = require('../spritesheetFrame.js');
 var Frame = require('./frame.jsx');
@@ -9,7 +9,7 @@ var Frame = require('./frame.jsx');
 class Frames extends React.Component {
   static propTypes = {
     active: T.bool.isRequired,
-    selected: T.string.isRequired,
+    selected: T.string,
     frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
     updateFrame: T.func.isRequired,
     deleteFrame: T.func.isRequired,

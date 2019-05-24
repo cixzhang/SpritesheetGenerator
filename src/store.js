@@ -1,7 +1,8 @@
 
-const { createConnectedStore } = require('undux');
-const Spritesheet = require('Spritesheet');
-const {tools} = require('Constants');
+const { createConnectedStore, withLogger } = require('undux');
+
+const Spritesheet = require('./spritesheet');
+const {tools} = require('./constants');
 
 module.exports = createConnectedStore({
   files: {
@@ -13,4 +14,5 @@ module.exports = createConnectedStore({
   selected: null,
   activeTool: tools.PAN,
   activePanel: null,
-});
+  loadingImage: false,
+}, withLogger);

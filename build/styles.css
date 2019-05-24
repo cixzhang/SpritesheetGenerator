@@ -1,5 +1,22 @@
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300,600);
-@import url(icons/css/fontello.css);
+@import url(./icons/css/fontello.css);
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Open Sans Light'), local('OpenSans-Light'), url(http://fonts.gstatic.com/s/opensans/v16/mem5YaGs126MiZpBA-UN_r8OUuhs.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans Regular'), local('OpenSans-Regular'), url(http://fonts.gstatic.com/s/opensans/v16/mem8YaGs126MiZpBA-UFVZ0e.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Open Sans SemiBold'), local('OpenSans-SemiBold'), url(http://fonts.gstatic.com/s/opensans/v16/mem5YaGs126MiZpBA-UNirkOUuhs.ttf) format('truetype');
+}
 * {
   box-sizing: border-box;
 }
@@ -167,7 +184,7 @@ div.files > div:first-child {
   height: 10rem;
 }
 div.files > div:last-child {
-  height: calc(100% - 10rem);
+  height: calc(100% - 2.5rem * 4);
 }
 div.files div.upload li {
   display: block;

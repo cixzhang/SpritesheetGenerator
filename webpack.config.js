@@ -1,22 +1,18 @@
+const path = require('path');
+
 module.exports = {
+  mode: 'development',
+  devtool: 'inline-source-map',
   entry: './src/build.jsx',
   output: {
-    path: '.',
-    filename: 'build/scripts.js'
+    path: path.resolve(__dirname, 'build'),
+    filename: 'scripts.js'
   },
   module: {
-    loaders: [
-      {
-        test: /\.json$/,
-        loader: 'json'
-      },
+    rules: [
       {
         test: /\.js$|\.jsx$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'babel', // 'babel-loader' is also a legal name to reference
-        query: {
-          presets: ['react']
-        }
+        use: 'babel-loader',
       }
     ]
   }

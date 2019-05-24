@@ -1,13 +1,13 @@
 
 var _ = require('underscore');
 var React = require('react');
-var T = React.PropTypes;
+var T = require('prop-types');
 
 var SpritesheetFrame = require('../spritesheetFrame.js');
 
 class Display extends React.Component {
   static propTypes = {
-    selected: T.string.isRequired,
+    selected: T.string,
     activeTool: T.string.isRequired,
     frames : T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
     sprite: T.instanceOf(Image).isRequired,

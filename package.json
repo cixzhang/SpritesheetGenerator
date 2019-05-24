@@ -8,17 +8,22 @@
     "less": "lessc src/css/build.less build/styles.css"
   },
   "dependencies": {
-    "babel-core": "^6.26.3",
-    "babel-loader": "^6.2.4",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-preset-react": "^6.11.1",
-    "less": "^2.7.1",
     "prompt-promise": "^1.0.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "rxjs": "^6.5.2",
     "underscore": "^1.8.3",
-    "undux": "^5.0.0-beta.22",
-    "webpack": "^1.13.1"
+    "undux": "^5.0.0-beta.22"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.6",
+    "less": "^3.9.0",
+    "prop-types": "^15.7.2",
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2"
   }
 }

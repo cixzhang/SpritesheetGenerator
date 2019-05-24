@@ -1,6 +1,6 @@
 
 var React = require('react');
-var T = React.PropTypes;
+var T = require('prop-types');
 
 var SpritesheetFrame = require('../spritesheetFrame.js');
 

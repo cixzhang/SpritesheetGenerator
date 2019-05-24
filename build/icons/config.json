@@ -41,6 +41,12 @@
       "css": "close",
       "code": 59395,
       "src": "typicons"
+    },
+    {
+      "uid": "72109d2fb3088d0e66ea6a9204297651",
+      "css": "spin",
+      "code": 59396,
+      "src": "fontelico"
     }
   ]
 }

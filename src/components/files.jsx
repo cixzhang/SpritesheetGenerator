@@ -1,31 +1,38 @@
 
 var _ = require('underscore');
 var React = require('react');
-var T = React.PropTypes;
+var T = require('prop-types');
+
+const Store = require('../store');
+const FileDropTarget = require('./FileDropTarget.jsx');
+const Spinner = require('./Spinner.jsx');
 
 class Files extends React.Component {
   static propTypes = {
-    files: T.shape({
-      image: T.instanceOf(File),
-      json: T.instanceOf(File)
-    }).isRequired,
-    addFiles: T.func.isRequired,
     active: T.bool.isRequired,
     output: T.string.isRequired
   };
 
   render() {
-    var filesHtml = <span>Drag and drop image or json files.</span>;
-    var files = _.filter(_.pairs(this.props.files), function (v) { return v[1]; });
-    if (files.length) {
-      filesHtml = _.map(files, function (file) {
-        return <li key={file[0]}>{file[1].name}</li>;
-      });
-    }
+    const store = this.props.store;
+    const files = store.get('files');
+    const loadingImage = store.get('loadingImage');
+    const hasFiles = _.some(files, file => !!file);
+
+    const filesHtml =
+      hasFiles ?
+        _.map(files, (file, key) => {
+          if (!file) return null;
+          return (
+            <li key={key}>
+              {file.name}
+              {key === 'image' && loadingImage && <Spinner />}
+            </li>
+          );
+        }) : (<span>Drag and drop image or json files.</span>);
+
     return (
-      <div className={'files' + (this.props.active ? '' : ' hidden')}
-          onDrop={this.props.addFiles}
-          onDragOver={this.onDragOver} >
+      <FileDropTarget className={'files' + (this.props.active ? '' : ' hidden')}>
         <div className='upload'>
           <header>Files</header>
           <ul>{filesHtml}</ul>
@@ -36,11 +43,9 @@ class Files extends React.Component {
             <textarea value={this.props.output} readOnly={true}></textarea>
           </div>
         </div>
-      </div>
+      </FileDropTarget>
     );
   }
-
-  onDragOver = (e) => { e.preventDefault(); }
 }
 
-module.exports = Files;
+module.exports = Store.withStore(Files);
