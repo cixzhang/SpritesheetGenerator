@@ -9,7 +9,7 @@ class Display extends React.Component {
   _canvasRef = React.createRef();
 
   static propTypes = {
-    selected: T.string,
+    selected: T.number,
     activeTool: T.string.isRequired,
     frames : T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
     sprite: T.instanceOf(Image).isRequired,

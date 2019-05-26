@@ -9,7 +9,7 @@ var Frame = require('./frame.jsx');
 class Frames extends React.Component {
   static propTypes = {
     active: T.bool.isRequired,
-    selected: T.string,
+    selected: T.number,
     frames: T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
     updateFrame: T.func.isRequired,
     deleteFrame: T.func.isRequired,
