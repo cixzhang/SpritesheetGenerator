@@ -47,6 +47,12 @@
       "css": "spin",
       "code": 59396,
       "src": "fontelico"
+    },
+    {
+      "uid": "o1c30odwfvgcvi5b4jsg95sur8v6ghsp",
+      "css": "detect",
+      "code": 59397,
+      "src": "modernpics"
     }
   ]
 }

@@ -1,4 +1,5 @@
-const React = require('React');
+
+const React = require('react');
 
 function Spinner() {
   return (

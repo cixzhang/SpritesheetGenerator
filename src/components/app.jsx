@@ -8,7 +8,8 @@ const Files = require('./files.jsx');
 const FileDropTarget = require('./FileDropTarget.jsx');
 const Toggle = require('./toggle.jsx');
 
-const {allTools, allPanels, panels} = require('../constants');
+const { panels, tools } = require('../constants');
+const { detectNonOverlappingFrames } = require('../detect');
 const Store = require('../store');
 
 class App extends React.Component {
@@ -33,24 +34,48 @@ class App extends React.Component {
         />
         <Sidebar
           tools={
-            allTools.map((tool) => (
+            <>
+              {
+                <>
+                  <Toggle
+                    key={tools.PAN}
+                    icon={tools.PAN}
+                    toggle={() => this.toggleTool(tools.PAN)}
+                    active={activeTool === tools.PAN}
+                  />
+                  <Toggle
+                    key={tools.DRAW}
+                    icon={tools.DRAW}
+                    toggle={() => this.toggleTool(tools.DRAW)}
+                    active={activeTool === tools.DRAW}
+                  />
+                </>
+              }
+              <hr />
+              {/* List tools that are activated only once */}
               <Toggle
-                key={tool}
-                icon={tool}
-                toggle={() => this.toggleTool(tool)}
-                active={activeTool === tool}
+                key={tools.DETECT}
+                icon={tools.DETECT}
+                toggle={this.detectAndAddFrames}
+                active={false}
               />
-            ))
+            </>
           }
           panels={
-            allPanels.map((panel) => (
+            <>
               <Toggle
-                key={panel}
-                icon={panel}
-                toggle={() => this.togglePanel(panel)}
-                active={activePanel === panel}
+                key={panels.DETAILS}
+                icon={panels.DETAILS}
+                toggle={() => this.togglePanel(panels.DETAILS)}
+                active={activePanel === panels.DETAILS}
               />
-            ))
+              <Toggle
+                key={panels.FILES}
+                icon={panels.FILES}
+                toggle={() => this.togglePanel(panels.FILES)}
+                active={activePanel === panels.FILES}
+              />
+            </>
           }
           activePanel={activePanel}
         >
@@ -105,6 +130,20 @@ class App extends React.Component {
     const store = this.props.store;
     const activePanel = store.get('activePanel');
     store.set('activePanel')(activePanel === panel ? null : panel);
+  }
+
+  detectAndAddFrames = () => {
+    const image = this.props.store.get('sprite');
+    const spritesheet = this.props.store.get('spritesheet');
+    if (image.width === 0) {
+      // Image has not loaded
+      return;
+    }
+
+    const frames = detectNonOverlappingFrames(image, spritesheet);
+    this.props.store.set('spritesheet')(
+      spritesheet.addFrames(frames)
+    );
   }
 }
 

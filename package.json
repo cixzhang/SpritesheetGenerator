@@ -21,6 +21,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.6",
+    "disjoint-set": "^1.1.8",
     "less": "^3.9.0",
     "prop-types": "^15.7.2",
     "webpack": "^4.32.2",

@@ -6,6 +6,8 @@ var T = require('prop-types');
 var SpritesheetFrame = require('../spritesheetFrame.js');
 
 class Display extends React.Component {
+  _canvasRef = React.createRef();
+
   static propTypes = {
     selected: T.string,
     activeTool: T.string.isRequired,
@@ -33,7 +35,7 @@ class Display extends React.Component {
 
   render() {
     return (
-      <canvas ref='canvas'
+      <canvas ref={this._canvasRef}
         className={this.props.activeTool}
         onMouseDown={this.onMouseDown}
         onMouseMove={this.onMouseMove}
@@ -42,7 +44,9 @@ class Display extends React.Component {
   }
 
   renderCanvas() {
-    var canvas = this.refs.canvas;
+    var canvas = this._canvasRef.current;
+    if (canvas == null) return;
+
     var context = canvas.getContext('2d');
 
     canvas.width = canvas.getBoundingClientRect().width;
