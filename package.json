@@ -5,7 +5,8 @@
   "scripts": {
     "prepublish": "npm run icons && npm run less && webpack",
     "icons": "node load-icons.js",
-    "less": "lessc src/css/build.less build/styles.css"
+    "less": "lessc src/css/build.less build/styles.css",
+    "build": "npm run prepublish && git add build"
   },
   "dependencies": {
     "prompt-promise": "^1.0.3",

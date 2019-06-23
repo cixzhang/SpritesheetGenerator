@@ -20,5 +20,7 @@ module.exports = createConnectedStore({
   gridSize: 16,
   scale: 4,
   drawRect: { x: 0, y: 0, w: 0, h: 0 },
-  offset: { x: 0, y: 0 }
+  offset: { x: 0, y: 0 },
+  startCoordinates: null, // { x, y }
+  moveCoordinates: null,  // { x, y }
 }, withLogger);

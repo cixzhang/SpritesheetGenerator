@@ -140,23 +140,30 @@ class Display extends React.Component {
       const rect = {x: x, y: y, w: 0, h: 0};
       store.set('drawRect')(rect);
     }
-    this.checkMove = [x, y];
+    store.set('startCoordinates')({x, y});
+    store.set('moveCoordinates')({x, y});
   }
 
   onMouseMove = (e) => {
-    if (!this.checkMove) return;
+    const store = this.props.store;
+    const startCoordinates = store.get('startCoordinates');
+    const moveCoordinates = store.get('moveCoordinates');
+
+    if (!startCoordinates || !moveCoordinates) return;
     let x = e.clientX;
     let y = e.clientY;
-    const store = this.props.store;
     const offset = store.get('offset');
     const scale = store.get('scale');
     if (this.props.activeTool === 'draw') {
       x = Math.round((e.clientX - offset.x) / scale);
       y = Math.round((e.clientY - offset.y) / scale);
-      var bounds = this.getBounds(this.checkMove, [x, y]);
+      var bounds = this.getBounds(
+        [startCoordinates.x, startCoordinates.y],
+        [x, y],
+      );
       var rect = this.getRect({
-        x: this.checkMove[0],
-        y: this.checkMove[1],
+        x: startCoordinates.x,
+        y: startCoordinates.y,
         x2: Math.min(Math.max(x, bounds.left), bounds.right),
         y2: Math.min(Math.max(y, bounds.top), bounds.bottom)
       });
@@ -164,12 +171,12 @@ class Display extends React.Component {
     } else if (this.props.activeTool === 'pan') {
       const offset = store.get('offset');
       const offsetNew = {
-            x: x - this.checkMove[0] + offset.x,
-            y: y - this.checkMove[1] + offset.y
-          };
-      this.checkMove = [x, y]; // update reference for next mouseMove
+        x: x - moveCoordinates.x + offset.x,
+        y: y - moveCoordinates.y + offset.y,
+      };
       store.set('offset')(offsetNew);
     }
+    store.set('moveCoordinates')({ x, y });
   }
 
   onMouseUp = () => {
@@ -185,7 +192,8 @@ class Display extends React.Component {
       }
       store.set('drawRect')({ x: 0, y: 0, w: 0, h: 0 });
     }
-    this.checkMove = false;
+    store.set('startCoordinates')(null);
+    store.set('moveCoordinates')(null);
   }
 
   checkFrame(rect) {
