@@ -7,10 +7,15 @@ const Frames = require('./frames.jsx');
 const Files = require('./files.jsx');
 const FileDropTarget = require('./FileDropTarget.jsx');
 const Toggle = require('./toggle.jsx');
+const ToolIcon = require('./ToolIcon.jsx');
 
-const { panels, tools } = require('../constants');
-const { detectNonOverlappingFrames } = require('../detect');
+const { panels } = require('../constants');
 const Store = require('../store');
+
+// Load all tools
+const pan = require('../tools/pan');
+const draw = require('../tools/draw');
+const detect = require('../tools/detect');
 
 class App extends React.Component {
   render() {
@@ -27,8 +32,6 @@ class App extends React.Component {
         <Display
           sprite={sprite}
           frames={spritesheet.frames}
-          addFrame={this.addFrame}
-          selectFrame={this.selectFrame}
           selected={selected}
           activeTool={activeTool}
         />
@@ -37,28 +40,13 @@ class App extends React.Component {
             <>
               {
                 <>
-                  <Toggle
-                    key={tools.PAN}
-                    icon={tools.PAN}
-                    toggle={() => this.toggleTool(tools.PAN)}
-                    active={activeTool === tools.PAN}
-                  />
-                  <Toggle
-                    key={tools.DRAW}
-                    icon={tools.DRAW}
-                    toggle={() => this.toggleTool(tools.DRAW)}
-                    active={activeTool === tools.DRAW}
-                  />
+                  <ToolIcon tool={pan} />
+                  <ToolIcon tool={draw} />
                 </>
               }
               <hr />
               {/* List tools that are activated only once */}
-              <Toggle
-                key={tools.DETECT}
-                icon={tools.DETECT}
-                toggle={this.detectAndAddFrames}
-                active={false}
-              />
+              <ToolIcon tool={detect} />
             </>
           }
           panels={
@@ -100,11 +88,6 @@ class App extends React.Component {
   }
 
   // Frames
-  addFrame = (frame) => {
-    const store = this.props.store;
-    const spritesheet = store.get('spritesheet');
-    store.set('spritesheet')(spritesheet.addFrames(frame));
-  }
   updateFrame = (frame, data) => {
     frame.update(data);
     const store = this.props.store;
@@ -122,28 +105,10 @@ class App extends React.Component {
   }
 
   // Toolbar
-  toggleTool = (tool) => {
-    const store = this.props.store;
-    store.set('activeTool')(tool);
-  }
   togglePanel = (panel) => {
     const store = this.props.store;
     const activePanel = store.get('activePanel');
     store.set('activePanel')(activePanel === panel ? null : panel);
-  }
-
-  detectAndAddFrames = () => {
-    const image = this.props.store.get('sprite');
-    const spritesheet = this.props.store.get('spritesheet');
-    if (image.width === 0) {
-      // Image has not loaded
-      return;
-    }
-
-    const frames = detectNonOverlappingFrames(image, spritesheet);
-    this.props.store.set('spritesheet')(
-      spritesheet.addFrames(frames)
-    );
   }
 }
 

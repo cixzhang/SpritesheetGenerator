@@ -5,17 +5,16 @@ var T = require('prop-types');
 
 var SpritesheetFrame = require('../spritesheetFrame.js');
 const Store = require('../store');
+const Tool = require('../tools/Tool');
 
 class Display extends React.Component {
   _canvasRef = React.createRef();
 
   static propTypes = {
     selected: T.number,
-    activeTool: T.string.isRequired,
+    activeTool: T.instanceOf(Tool).isRequired,
     frames : T.arrayOf(T.instanceOf(SpritesheetFrame)).isRequired,
     sprite: T.instanceOf(Image).isRequired,
-    selectFrame: T.func.isRequired,
-    addFrame: T.func.isRequired
   };
 
   componentWillMount() { window.onresize = this.renderCanvas; }
@@ -29,7 +28,7 @@ class Display extends React.Component {
   render() {
     return (
       <canvas ref={this._canvasRef}
-        className={this.props.activeTool}
+        className={this.props.activeTool.icon}
         onMouseDown={this.onMouseDown}
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp} />
@@ -131,96 +130,34 @@ class Display extends React.Component {
   onMouseDown = (e) => {
     let x = e.clientX;
     let y = e.clientY;
-    const store = this.props.store;
-    const offset = store.get('offset');
-    const scale = store.get('scale');
-    if (this.props.activeTool === 'draw') {
-      x = Math.round((e.clientX - offset.x) / scale);
-      y = Math.round((e.clientY - offset.y) / scale);
-      const rect = {x: x, y: y, w: 0, h: 0};
-      store.set('drawRect')(rect);
-    }
+    const {store, activeTool} = this.props;
+
+    activeTool.onStartDraw(e, store);
+
     store.set('startCoordinates')({x, y});
     store.set('moveCoordinates')({x, y});
   }
 
   onMouseMove = (e) => {
-    const store = this.props.store;
-    const startCoordinates = store.get('startCoordinates');
-    const moveCoordinates = store.get('moveCoordinates');
-
-    if (!startCoordinates || !moveCoordinates) return;
     let x = e.clientX;
     let y = e.clientY;
-    const offset = store.get('offset');
-    const scale = store.get('scale');
-    if (this.props.activeTool === 'draw') {
-      x = Math.round((e.clientX - offset.x) / scale);
-      y = Math.round((e.clientY - offset.y) / scale);
-      var bounds = this.getBounds(
-        [startCoordinates.x, startCoordinates.y],
-        [x, y],
-      );
-      var rect = this.getRect({
-        x: startCoordinates.x,
-        y: startCoordinates.y,
-        x2: Math.min(Math.max(x, bounds.left), bounds.right),
-        y2: Math.min(Math.max(y, bounds.top), bounds.bottom)
-      });
-      store.set('drawRect')(rect);
-    } else if (this.props.activeTool === 'pan') {
-      const offset = store.get('offset');
-      const offsetNew = {
-        x: x - moveCoordinates.x + offset.x,
-        y: y - moveCoordinates.y + offset.y,
-      };
-      store.set('offset')(offsetNew);
-    }
+    const { store, activeTool } = this.props;
+    const startCoordinates = store.get('startCoordinates');
+    // We haven't started drawing
+    if (!startCoordinates) return;
+
+    activeTool.onDraw(e, store);
+
     store.set('moveCoordinates')({ x, y });
   }
 
-  onMouseUp = () => {
-    const store = this.props.store;
-    if (this.props.activeTool === 'draw') {
-      var rect = store.get('drawRect');
-      var overlap = this.checkFrame(rect);
-      if (overlap.length) {
-        this.props.selectFrame(overlap[0]);
-      }
-      else if (rect.w * rect.h > 0) {
-        this.props.addFrame({name: '', frame: rect});
-      }
-      store.set('drawRect')({ x: 0, y: 0, w: 0, h: 0 });
-    }
+  onMouseUp = (e) => {
+    const { store, activeTool } = this.props;
+
+    activeTool.onStopDraw(e, store);
+
     store.set('startCoordinates')(null);
     store.set('moveCoordinates')(null);
-  }
-
-  checkFrame(rect) {
-    return _.filter(this.props.frames, function (frame) {
-      return frame.isOverlap(rect.x, rect.y, rect.w, rect.h);
-    });
-  }
-
-  getBounds(origin, coords) {
-    var bounds = _.reduce(this.props.frames, function (bounds, frame) {
-      var frameBounds = frame.getBounds(origin, coords);
-      bounds.top = Math.max(bounds.top, frameBounds.top);
-      bounds.bottom = Math.min(bounds.bottom, frameBounds.bottom);
-      bounds.left = Math.max(bounds.left, frameBounds.left);
-      bounds.right = Math.min(bounds.right, frameBounds.right);
-      return bounds;
-    }, {top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity});
-    return bounds;
-  }
-
-  getRect(state) {
-    return {
-      x: Math.min(state.x, state.x2),
-      y: Math.min(state.y, state.y2),
-      w: Math.abs(state.x2 - state.x),
-      h: Math.abs(state.y2 - state.y)
-    };
   }
 }
 

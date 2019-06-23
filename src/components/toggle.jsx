@@ -20,7 +20,7 @@ class Toggle extends React.Component {
     );
   }
 
-  onClick = () => { this.props.toggle(); }
+  onClick = (e) => { this.props.toggle(e); }
 };
 
 module.exports = Toggle;

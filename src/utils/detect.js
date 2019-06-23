@@ -1,7 +1,7 @@
 
 const _ = require('underscore');
 const disjointSet = require('disjoint-set');
-const SpritesheetFrame = require('./spritesheetFrame');
+const SpritesheetFrame = require('../spritesheetFrame');
 
 function getImageData(image) {
   const canvas = document.createElement('canvas');
