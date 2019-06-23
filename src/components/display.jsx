@@ -4,6 +4,7 @@ var React = require('react');
 var T = require('prop-types');
 
 var SpritesheetFrame = require('../spritesheetFrame.js');
+const Store = require('../store');
 
 class Display extends React.Component {
   _canvasRef = React.createRef();
@@ -15,14 +16,6 @@ class Display extends React.Component {
     sprite: T.instanceOf(Image).isRequired,
     selectFrame: T.func.isRequired,
     addFrame: T.func.isRequired
-  };
-
-  state = {
-    grid: 16, grid_sm: 1, scale: 4,
-    drawRect: {x: 0, y: 0, w: 0, h: 0},
-    selected: null,
-    clamp: true,
-    offset: {x: 0, y: 0}
   };
 
   componentWillMount() { window.onresize = this.renderCanvas; }
@@ -59,8 +52,11 @@ class Display extends React.Component {
 
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    this.drawGrid(context, this.state.grid, 'rgba(94, 167, 179, 0.35)');
-    this.drawGrid(context, this.state.grid_sm, 'rgba(94, 167, 179, 0.15)');
+    const gridSize = this.props.store.get('gridSize');
+    const scale = this.props.store.get('scale');
+
+    this.drawGrid(context, gridSize, 'rgba(94, 167, 179, 0.35)');
+    this.drawGrid(context, Math.ceil(4 / scale), 'rgba(94, 167, 179, 0.15)');
     this.drawSprite(context);
     this.drawFrames(context);
     this.drawMouse(context);
@@ -68,18 +64,21 @@ class Display extends React.Component {
 
   drawGrid(context, size, style) {
     context.beginPath();
-    var canvas = context.canvas,
-        grid = size * this.state.scale,
-        offset = {x: this.state.offset.x % grid, y: this.state.offset.y % grid},
-        x = Math.floor(canvas.width / grid),
-        y = Math.floor(canvas.height / grid);
+    const scale = this.props.store.get('scale');
+    const offset = this.props.store.get('offset');
+    const canvas = context.canvas;
+    const grid = size * scale;
+    const offsetXY = {x: offset.x % grid, y: offset.y % grid};
+    const x = Math.floor(canvas.width / grid);
+    const y = Math.floor(canvas.height / grid);
+
     for (var i = -1; i < x + 1; i++) {
-      context.moveTo(i * grid - 0.5 + offset.x, 0);
-      context.lineTo(i * grid - 0.5 + offset.x, canvas.height);
+      context.moveTo(i * grid - 0.5 + offsetXY.x, 0);
+      context.lineTo(i * grid - 0.5 + offsetXY.x, canvas.height);
     }
     for (var j = -1; j < y + 1; j++) {
-      context.moveTo(0, j * grid + 0.5 + offset.y);
-      context.lineTo(canvas.width, j * grid + 0.5 + offset.y);
+      context.moveTo(0, j * grid + 0.5 + offsetXY.y);
+      context.lineTo(canvas.width, j * grid + 0.5 + offsetXY.y);
     }
     if (style) context.strokeStyle = style;
     context.stroke();
@@ -96,11 +95,15 @@ class Display extends React.Component {
   }
 
   drawSprite(context) {
-    if (this.props.sprite.src) {
+    const {store, sprite} = this.props;
+    const offset = store.get('offset');
+    const scale = store.get('scale');
+
+    if (sprite.src) {
       context.drawImage(
-        this.props.sprite, this.state.offset.x, this.state.offset.y,
-        this.props.sprite.width * this.state.scale,
-        this.props.sprite.height * this.state.scale
+        this.props.sprite, offset.x, offset.y,
+        this.props.sprite.width * scale,
+        this.props.sprite.height * scale
       );
     }
   }
@@ -109,13 +112,14 @@ class Display extends React.Component {
     context.fillStyle = 'rgba(225, 225, 180, 0.2)';
     context.strokeStyle = 'rgba(225, 225, 180, 1)';
 
-    var rect = this.state.drawRect;
+    const rect = this.props.store.get('drawRect');
     this.drawRect(context, rect);
   }
 
   drawRect(context, rect) {
-    var scale = this.state.scale,
-        offset = this.state.offset;
+    const {store} = this.props;
+    const scale = store.get('scale');
+    const offset = store.get('offset');
     context.fillRect(
       rect.x * scale + offset.x, rect.y * scale + offset.y,
       rect.w * scale, rect.h * scale);
@@ -125,22 +129,30 @@ class Display extends React.Component {
   }
 
   onMouseDown = (e) => {
-    var x = e.clientX, y = e.clientY;
+    let x = e.clientX;
+    let y = e.clientY;
+    const store = this.props.store;
+    const offset = store.get('offset');
+    const scale = store.get('scale');
     if (this.props.activeTool === 'draw') {
-      x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
-      y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
-      var rect = {x: x, y: y, w: 0, h: 0};
-      this.setState({drawRect: rect});
+      x = Math.round((e.clientX - offset.x) / scale);
+      y = Math.round((e.clientY - offset.y) / scale);
+      const rect = {x: x, y: y, w: 0, h: 0};
+      store.set('drawRect')(rect);
     }
     this.checkMove = [x, y];
   }
 
   onMouseMove = (e) => {
     if (!this.checkMove) return;
-    var x = e.clientX, y = e.clientY;
+    let x = e.clientX;
+    let y = e.clientY;
+    const store = this.props.store;
+    const offset = store.get('offset');
+    const scale = store.get('scale');
     if (this.props.activeTool === 'draw') {
-      x = Math.round((e.clientX - this.state.offset.x) / this.state.scale);
-      y = Math.round((e.clientY - this.state.offset.y) / this.state.scale);
+      x = Math.round((e.clientX - offset.x) / scale);
+      y = Math.round((e.clientY - offset.y) / scale);
       var bounds = this.getBounds(this.checkMove, [x, y]);
       var rect = this.getRect({
         x: this.checkMove[0],
@@ -148,20 +160,22 @@ class Display extends React.Component {
         x2: Math.min(Math.max(x, bounds.left), bounds.right),
         y2: Math.min(Math.max(y, bounds.top), bounds.bottom)
       });
-      this.setState({drawRect: rect});
+      store.set('drawRect')(rect);
     } else if (this.props.activeTool === 'pan') {
-      var offset = {
-            x: x - this.checkMove[0] + this.state.offset.x,
-            y: y - this.checkMove[1] + this.state.offset.y
+      const offset = store.get('offset');
+      const offsetNew = {
+            x: x - this.checkMove[0] + offset.x,
+            y: y - this.checkMove[1] + offset.y
           };
       this.checkMove = [x, y]; // update reference for next mouseMove
-      this.setState({offset: offset});
+      store.set('offset')(offsetNew);
     }
   }
 
   onMouseUp = () => {
+    const store = this.props.store;
     if (this.props.activeTool === 'draw') {
-      var rect = this.state.drawRect;
+      var rect = store.get('drawRect');
       var overlap = this.checkFrame(rect);
       if (overlap.length) {
         this.props.selectFrame(overlap[0]);
@@ -169,7 +183,7 @@ class Display extends React.Component {
       else if (rect.w * rect.h > 0) {
         this.props.addFrame({name: '', frame: rect});
       }
-      this.setState({ drawRect: { x: 0, y: 0, w: 0, h: 0 } });
+      store.set('drawRect')({ x: 0, y: 0, w: 0, h: 0 });
     }
     this.checkMove = false;
   }
@@ -202,4 +216,4 @@ class Display extends React.Component {
   }
 }
 
-module.exports = Display;
+module.exports = Store.withStore(Display);
