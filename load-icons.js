@@ -4,7 +4,7 @@
 // Configurable
 const location = 'http://fontello.com/';
 const output = __dirname + '/build/icons/';
-const file = __dirname + '/build/icons/config.json';
+const file = __dirname + '/icons.config.json';
 
 var prompt = require('prompt-promise');
 const cp = require('child_process');
