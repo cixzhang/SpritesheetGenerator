@@ -24,6 +24,14 @@ class SpritesheetFrame {
     return !((x >= frame.x + frame.w || frame.x >= x + w) || (y >= frame.y + frame.h || frame.y >= y + h));
   }
 
+  isIdentical(x, y, w, h) {
+    const frame = this.frame;
+    return x === frame.x &&
+      y === frame.y &&
+      w === frame.w &&
+      h === frame.h;
+  }
+
   getBounds(origin, coords) {
     var frame = this.frame,
       xExtent = [Math.min(origin[0], coords[0]), Math.max(origin[0], coords[0])],

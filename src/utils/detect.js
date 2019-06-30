@@ -3,6 +3,9 @@ const _ = require('underscore');
 const disjointSet = require('disjoint-set');
 const SpritesheetFrame = require('../spritesheetFrame');
 
+const getRect = require('./getRect');
+
+
 function getImageData(image) {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
@@ -19,30 +22,33 @@ function getImageData(image) {
   return context.getImageData(0, 0, image.width, image.height);
 }
 
-function getPixelData(imageData) {
+function getPixelData(imageData, rect = null) {
   const pixelData = [];
   const data = imageData.data;
+  const getXY = getComputeXY({x: 0, y: 0, w: imageData.width, h: imageData.height});
 
   for (let i = 0; i < data.length; i += 4) {
-    pixelData.push([data[i],data[i+1],data[i+2],data[i+3]]);
+    if (!rect || containsCoordinates(rect, getXY(i / 4))) {
+      pixelData.push([data[i],data[i+1],data[i+2],data[i+3]]);
+    }
   }
   return pixelData;
 }
 
-function getComputeXY(imageData) {
+function getComputeXY(rect) {
   return (index) => {
-    const x = index % imageData.width;
-    const y = Math.floor(index / imageData.width);
-    return {x, y};
+    const x = index % rect.w;
+    const y = Math.floor(index / rect.w);
+    return {x: rect.x + x, y: rect.y + y};
   };
 }
 
-function getComputeIndex(imageData) {
+function getComputeIndex(rect) {
   return (x, y) => {
-    if (x < 0 || y < 0 || x >= imageData.width || y >= imageData.height) {
+    if (x < rect.x || y < rect.y || x >= rect.x + rect.w || y >= rect.y + rect.h) {
       return null;
     }
-    return y * imageData.width + x;
+    return (y - rect.y) * rect.w + (x - rect.x);
   };
 }
 
@@ -70,19 +76,40 @@ function getRange(pixels) {
   };
 }
 
-function findPixelIslands(image) {
+function containsCoordinates(rect, xy) {
+  return xy.x >= rect.x &&
+    xy.y >= rect.y &&
+    xy.x < (rect.x + rect.w) &&
+    xy.y < (rect.y + rect.h);
+}
+
+function getValidRect(imageData, rect) {
+  return getRect({
+    x: Math.min(Math.max(rect.x, 0), imageData.width),
+    y: Math.min(Math.max(rect.y, 0), imageData.height),
+    x2: Math.min(Math.max(rect.x + rect.w, 0), imageData.width),
+    y2: Math.min(Math.max(rect.y + rect.h, 0), imageData.height),
+  });
+}
+
+function findPixelIslands(image, rect = null) {
   const imageData = getImageData(image);
-  const pixelData = getPixelData(imageData);
-  const getXY = getComputeXY(imageData);
-  const getIndex = getComputeIndex(imageData);
+  rect = rect ?
+    getValidRect(imageData, rect)
+    : { x: 0, y: 0, w: imageData.width, h: imageData.height };
+
+  const pixelData = getPixelData(imageData, rect);
+  const getXY = getComputeXY(rect);
+  const getIndex = getComputeIndex(rect);
 
   const set = disjointSet();
+
   const pixels = pixelData.map((data, index) => ({
     data,
     ...getXY(index),
   }));
 
-  pixels.forEach((pixel, index) => {
+  pixels.forEach((pixel) => {
     /*
      * For each pixel, we add it to the disjoint set,
      * then we check if it's connected to any other pixel
@@ -114,8 +141,8 @@ function findPixelIslands(image) {
   return set.extract();
 }
 
-function detectFrames(image) {
-  const islands = findPixelIslands(image);
+function detectFrames(image, rect = null) {
+  const islands = findPixelIslands(image, rect);
   return islands.map(pixels => {
     const range = getRange(pixels);
     return new SpritesheetFrame({
@@ -129,15 +156,24 @@ function detectFrames(image) {
   });
 }
 
-function detectNonOverlappingFrames(image, spritesheet) {
-  const nFrames = detectFrames(image);
+function detectNonOverlappingFrames(image, spritesheet, rect = null) {
+  const nFrames = detectFrames(image, rect);
   return nFrames.filter((nFrame) => {
     const {x, y, w, h} = nFrame.frame;
     return _.all(spritesheet.frames, sFrame => !sFrame.isOverlap(x, y, w, h));
   });
 }
 
+function detectNonIdenticalFrames(image, spritesheet, rect = null) {
+  const nFrames = detectFrames(image, rect);
+  return nFrames.filter((nFrame) => {
+    const { x, y, w, h } = nFrame.frame;
+    return _.all(spritesheet.frames, sFrame => !sFrame.isIdentical(x, y, w, h));
+  });
+}
+
 module.exports = {
   detectFrames,
   detectNonOverlappingFrames,
+  detectNonIdenticalFrames,
 };
