@@ -1,4 +1,4 @@
-div.spritesheet {
+.spritesheet {
   height: 100%;
   padding-right: @width-toolbar;
   & > canvas {
@@ -8,6 +8,13 @@ div.spritesheet {
     &.draw { cursor: crosshair; }
     &.pan { cursor: move; }
   }
+}
+
+.grid-control-bar {
+  position: absolute;
+  width: 200px;
+  margin: auto;
+  bottom: 0;
 }
 
 @import "sidebar.less";

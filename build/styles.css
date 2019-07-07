@@ -40,20 +40,26 @@ ol {
   width: 100%;
   height: 100%;
 }
-div.spritesheet {
+.spritesheet {
   height: 100%;
   padding-right: 2.8rem;
 }
-div.spritesheet > canvas {
+.spritesheet > canvas {
   width: 100%;
   height: 100%;
   background-color: #ffffff;
 }
-div.spritesheet > canvas.draw {
+.spritesheet > canvas.draw {
   cursor: crosshair;
 }
-div.spritesheet > canvas.pan {
+.spritesheet > canvas.pan {
   cursor: move;
+}
+.grid-control-bar {
+  position: absolute;
+  width: 200px;
+  margin: auto;
+  bottom: 0;
 }
 div.sidebar {
   height: 100%;

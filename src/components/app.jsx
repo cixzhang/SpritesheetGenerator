@@ -8,6 +8,7 @@ const Files = require('./files.jsx');
 const FileDropTarget = require('./FileDropTarget.jsx');
 const Toggle = require('./toggle.jsx');
 const ToolIcon = require('./ToolIcon.jsx');
+const GridControlBar = require('./GridControlBar.jsx');
 
 const { panels } = require('../constants');
 const Store = require('../store');
@@ -35,6 +36,7 @@ class App extends React.Component {
           selected={selected}
           activeTool={activeTool}
         />
+        <GridControlBar />
         <Sidebar
           tools={
             <>
